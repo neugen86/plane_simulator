@@ -1,0 +1,4 @@
+#ifndef CONCEPTS_TEST_H
+#define CONCEPTS_TEST_H
+
+#endif // CONCEPTS_TEST_H

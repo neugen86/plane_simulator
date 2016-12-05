@@ -4,10 +4,27 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    gtest_main.cpp
+    main.cpp \
+    ../src/physics/algebra.cpp \
+    ../src/physics/concepts.cpp \
+    ../src/physics/scene.cpp \
+    ../src/utils/iterative.cpp
+
+
+HEADERS += \
+    algebra_test.h \
+    concepts_test.h \
+    scene_test.h \
+    ../src/physics/algebra.h \
+    ../src/physics/concepts.h \
+    ../src/physics/constants.h \
+    ../src/physics/scene.h \
+    ../src/physics/types.h \
+    ../src/utils/iterative.h
 
 INCLUDEPATH += \
-    /usr/include/gtest
+    /usr/include/gtest \
+    ../src
 
 LIBS    += \
     -L/usr/local/lib -lgtest \

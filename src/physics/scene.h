@@ -11,15 +11,13 @@ namespace physics
 {
 class Scene : public utils::Iterative
 {
-    typedef boost::shared_ptr<Particle> ParticlePtr;
+    static const duration_t DefaultDuration;
 
-    duration_t m_iterationDuration;
+    typedef boost::shared_ptr<Particle> ParticlePtr;
 
     std::list<ParticlePtr> m_particles;
 
 public:
-    static const duration_t DefaultDuration;
-
     Scene(duration_t duration = DefaultDuration);
 
     bool addObject(Object& object);

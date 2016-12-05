@@ -1,6 +1,7 @@
 #include "algebra.h"
 
-#include <math.h>
+#include <cmath>
+#include <limits>
 #include <stdexcept>
 
 namespace physics
@@ -10,13 +11,6 @@ Point::Point(value_t x, value_t y)
 {
     if (m_x < constants::Zero || m_y < constants::Zero)
         throw std::invalid_argument("Attempt to create object of Point with invalid arguments");
-}
-
-Vector::Vector(value_t rx, value_t ry)
-    : m_rx(rx), m_ry(ry)
-{
-    if (m_rx < constants::Zero || m_ry < constants::Zero)
-        throw std::invalid_argument("Attempt to create object of Vector with invalid arguments");
 }
 
 const Vector operator+ (const Vector& lhs, const Vector& rhs)
@@ -38,8 +32,7 @@ const Vector operator* (value_t scalar, const Vector& vector)
 
 const Vector normalize(const Vector& vector)
 {
-    value_t length = distance(Point(), Point(vector.rx(), vector.ry()));
-    return vector * (1 / length);
+    return vector * (1. / length(vector));
 }
 
 value_t distance(const Point& lhs, const Point& rhs)
@@ -47,5 +40,15 @@ value_t distance(const Point& lhs, const Point& rhs)
     const value_t dx = lhs.x() - rhs.x();
     const value_t dy = lhs.y() - rhs.y();
     return sqrt(dx * dx + dy * dy);
+}
+
+value_t length(const Vector& vector)
+{
+    return distance(Point(), Point(vector.rx(), vector.ry()));
+}
+
+bool same(value_t lhs, value_t rhs)
+{
+    return std::fabs(lhs - rhs) < std::numeric_limits<value_t>::epsilon();
 }
 } // namespace algebra

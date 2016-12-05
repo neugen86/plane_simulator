@@ -4,7 +4,7 @@
 namespace physics
 {
 typedef int obj_id;
-typedef double value_t;
+typedef float value_t;
 }
 
 #endif // TYPES_H

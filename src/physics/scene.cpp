@@ -2,7 +2,6 @@
 
 namespace physics
 {
-
 obj_id getObjectId()
 {
     static obj_id counter(0);
@@ -13,7 +12,6 @@ const duration_t Scene::DefaultDuration(50);
 
 Scene::Scene(duration_t duration)
     : utils::Iterative(duration)
-    , m_iterationDuration(duration)
 {
 }
 

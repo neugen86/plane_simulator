@@ -15,7 +15,7 @@ class Iterative : private boost::noncopyable
     bool m_paused;
     bool m_stopped;
 
-    const duration_t& m_duration;
+    const duration_t m_duration;
 
     boost::mutex m_guard;
     boost::mutex m_stopGuard;
@@ -29,7 +29,7 @@ public:
     explicit Iterative(duration_t duration);
     virtual ~Iterative();
 
-    const duration_t& getDuration() const { return m_duration; }
+    duration_t getDuration() const { return m_duration; }
 
     bool start();
     bool pause();
@@ -37,6 +37,11 @@ public:
 
 private:
     void loop();
+    void handleTimeout();
+    void handleResume();
+    bool handleStop();
+
+private:
     virtual void iterate() = 0;
 
 };

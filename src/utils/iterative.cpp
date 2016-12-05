@@ -20,9 +20,6 @@ bool Iterative::start()
 {
     boost::mutex::scoped_lock lock(m_guard);
 
-    if (!m_stopped)
-        return false;
-
     if (m_paused)
     {
         boost::mutex::scoped_lock lock(m_pauseGuard);
@@ -32,6 +29,9 @@ bool Iterative::start()
     }
     else
     {
+        if (!m_stopped)
+            return false;
+
         try
         {
             m_stopped = false;
@@ -51,7 +51,7 @@ bool Iterative::pause()
 {
     boost::mutex::scoped_lock lock(m_guard);
 
-    if (m_stopped)
+    if (m_stopped || m_paused)
         return false;
 
     {
@@ -92,17 +92,11 @@ void Iterative::loop()
 {
     for (;;)
     {
-        boost::this_thread::sleep_for(boost::chrono::milliseconds(m_duration));
+        handleTimeout();
+        handleResume();
 
-        {
-            boost::mutex::scoped_lock lock(m_pauseGuard);
-            while(m_paused) m_condResume.wait(lock);
-        }
-
-        {
-            boost::mutex::scoped_lock lock(m_stopGuard);
-            if (m_stopped) return;
-        }
+        if (handleStop())
+            return;
 
         try
         {
@@ -110,7 +104,29 @@ void Iterative::loop()
         }
         catch (...)
         {
+            stop();
+            return;
         }
     }
+}
+
+void Iterative::handleTimeout()
+{
+    using namespace boost::chrono;
+    static nanoseconds ns =
+            duration_cast<nanoseconds>(milliseconds(m_duration));
+    boost::this_thread::sleep_for(ns);
+}
+
+void Iterative::handleResume()
+{
+    boost::mutex::scoped_lock lock(m_pauseGuard);
+    while(m_paused) m_condResume.wait(lock);
+}
+
+bool Iterative::handleStop()
+{
+    boost::mutex::scoped_lock lock(m_stopGuard);
+    return m_stopped;
 }
 } // namespace utils

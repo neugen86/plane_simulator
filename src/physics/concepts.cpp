@@ -1,13 +1,13 @@
 #include "concepts.h"
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 
 namespace physics
 {
 void checkObjectArguments(value_t radius, value_t mass)
 {
-    if (radius < constants::Unitary || mass < constants::Unitary)
+    if (radius < constants::PositiveUnit || mass < constants::PositiveUnit)
         throw std::invalid_argument("Attempt to create object of Object with invalid arguments");
 }
 
@@ -30,15 +30,15 @@ value_t simpeGravity(const Object& lhs, const Object& rhs)
 {
     const value_t d = distance(lhs.position(), rhs.position());
 
-    if (d > constants::Unitary)
-        return ((d - constants::Unitary) / d) / d;
+    if (d > constants::PositiveUnit)
+        return ((d - constants::PositiveUnit) / d) / d;
 
     return constants::Zero;
 }
 
 value_t newtonGravity(const Object& lhs, const Object& rhs)
 {
-    static const value_t GravitationalConstant(constants::Unitary);
+    static const value_t GravitationalConstant(constants::PositiveUnit);
 
     const value_t d = distance(lhs.position(), rhs.position());
 

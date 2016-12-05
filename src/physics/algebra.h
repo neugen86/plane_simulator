@@ -32,9 +32,8 @@ public:
         : m_rx(point.x()), m_ry(point.y()) {}
 
     explicit Vector(value_t rx = constants::Zero,
-                    value_t ry = constants::Zero);
-
-    const Point operator() () { return Point(m_rx, m_ry); }
+                    value_t ry = constants::Zero)
+        : m_rx(rx), m_ry(ry) {}
 
     value_t rx() const { return m_rx; }
     value_t ry() const { return m_ry; }
@@ -49,6 +48,9 @@ const Vector operator* (value_t scalar, const Vector& vector);
 const Vector normalize(const Vector& vector);
 
 value_t distance(const Point& lhs, const Point& rhs);
+value_t length(const Vector& vector);
+
+bool same(value_t lhs, value_t rhs);
 
 } // namespace algebra
 

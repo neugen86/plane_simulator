@@ -8,9 +8,10 @@ namespace physics
 namespace constants
 {
 static const value_t Zero(0.);
-static const value_t Unitary(1.);
-static const value_t DefaultMass(Unitary);
-static const value_t DefaultRadius(Unitary);
+static const value_t PositiveUnit(1.);
+static const value_t NegativeUnit(-1.);
+static const value_t DefaultMass(PositiveUnit);
+static const value_t DefaultRadius(PositiveUnit);
 } // namespace constants
 } // namespace physics
 

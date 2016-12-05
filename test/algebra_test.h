@@ -9,11 +9,11 @@ using namespace physics;
 TEST(PointTest, creation)
 {
     {
-        const value_t v = constants::NegativeUnit;
+        const types::value_t v = constants::NegativeUnit;
         ASSERT_THROW(Point(v, v), std::invalid_argument);
     }
     {
-        const value_t v = constants::PositiveUnit;
+        const types::value_t v = constants::PositiveUnit;
         ASSERT_NO_THROW(Point(v, v));
     }
 }
@@ -21,7 +21,7 @@ TEST(PointTest, creation)
 TEST(PointTest, distance)
 {
     const Point pt1, pt2(3., 4.);
-    const value_t d = distance(pt1, pt2);
+    const types::value_t d = distance(pt1, pt2);
 
     ASSERT_FALSE(same(d, 6.));
     ASSERT_TRUE(same(d, 5.));
@@ -40,13 +40,13 @@ TEST(VectorTest, summation)
 TEST(VectorTest, multiplication)
 {
     const Vector v1(3., 4.);
-    const value_t scalar = 5;
+    const types::value_t scalar = 5;
 
     const Vector v2 = scalar * v1;
     const Vector v3 = v1 * scalar;
 
-    const value_t rxResult = v1.rx() * scalar;
-    const value_t ryResult = v1.ry() * scalar;
+    const types::value_t rxResult = v1.rx() * scalar;
+    const types::value_t ryResult = v1.ry() * scalar;
 
     ASSERT_EQ(v2.rx(), rxResult);
     ASSERT_EQ(v2.ry(), ryResult);
@@ -57,13 +57,13 @@ TEST(VectorTest, multiplication)
 
 TEST(VectorTest, normalize)
 {
-    const value_t l = length(normalize(Vector(3., 4.)));
+    const types::value_t l = length(normalize(Vector(3., 4.)));
     ASSERT_TRUE(same(l, constants::PositiveUnit));
 }
 
 TEST(VectorTest, length)
 {
-    const value_t l = length(Vector(3., 4.));
+    const types::value_t l = length(Vector(3., 4.));
 
     ASSERT_FALSE(same(l, 6.));
     ASSERT_TRUE(same(l, 5.));

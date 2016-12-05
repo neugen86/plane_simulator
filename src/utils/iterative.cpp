@@ -2,12 +2,12 @@
 
 namespace utils
 {
-Iterative::Iterative(duration_t duration)
+Iterative::Iterative(types::duration_t duration)
     : boost::noncopyable()
     , m_paused(false)
     , m_stopped(true)
-    , m_duration(duration)
     , m_pThread(nullptr)
+    , m_duration(duration)
 {
 }
 

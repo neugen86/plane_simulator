@@ -1,9 +1,9 @@
 #ifndef SCENE_TEST_H
 #define SCENE_TEST_H
 
-#include "physics/scene.h"
+#include "scene/scene.h"
 
-using namespace physics;
+using namespace scene;
 
 TEST(SceneTest, resuming)
 {

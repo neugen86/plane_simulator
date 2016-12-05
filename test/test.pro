@@ -7,7 +7,7 @@ SOURCES += \
     main.cpp \
     ../src/physics/algebra.cpp \
     ../src/physics/concepts.cpp \
-    ../src/physics/scene.cpp \
+    ../src/scene/scene.cpp \
     ../src/utils/iterative.cpp
 
 
@@ -18,9 +18,9 @@ HEADERS += \
     ../src/physics/algebra.h \
     ../src/physics/concepts.h \
     ../src/physics/constants.h \
-    ../src/physics/scene.h \
-    ../src/physics/types.h \
-    ../src/utils/iterative.h
+    ../src/scene/scene.h \
+    ../src/utils/iterative.h \
+    ../src/utils/types.h \
 
 INCLUDEPATH += \
     /usr/include/gtest \

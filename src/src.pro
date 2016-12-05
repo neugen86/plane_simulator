@@ -12,23 +12,28 @@ TARGET = src
 TEMPLATE = app
 CONFIG += c++11
 
-
 SOURCES += \
     main.cpp\
     mainwindow.cpp \
+    interchange/broadcaster.cpp \
+    interchange/subscription.cpp \
     physics/algebra.cpp \
     physics/concepts.cpp \
-    physics/scene.cpp \
+    scene/scene.cpp \
+    scene/director.cpp \
     utils/iterative.cpp
 
 HEADERS  += \
     mainwindow.h \
+    interchange/broadcaster.h \
+    interchange/subscription.h \
     physics/algebra.h \
     physics/concepts.h \
     physics/constants.h \
-    physics/scene.h \
-    physics/types.h \
-    utils/iterative.h
+    scene/scene.h \
+    scene/director.h \
+    utils/iterative.h \
+    utils/types.h
 
 FORMS    += \
     mainwindow.ui

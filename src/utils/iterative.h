@@ -18,17 +18,15 @@ class Iterative : private boost::noncopyable
     boost::mutex m_stopGuard;
     boost::mutex m_pauseGuard;
 
-    boost::condition_variable m_condResume;
+    boost::condition_variable m_resumeCondition;
 
     boost::shared_ptr<boost::thread> m_pThread;
 
-    const types::duration_t m_duration;
+    const boost::chrono::milliseconds m_timeout;
 
 public:
-    explicit Iterative(types::duration_t duration);
+    explicit Iterative(types::duration_t timeout);
     virtual ~Iterative();
-
-    types::duration_t getDuration() const { return m_duration; }
 
     bool start();
     bool pause();
@@ -36,7 +34,7 @@ public:
 
 private:
     void loop();
-    void handleTimeout();
+    void handleTimeout(boost::chrono::milliseconds timeout);
     void handleResume();
     bool handleStop();
 

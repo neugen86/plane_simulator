@@ -2,12 +2,12 @@
 
 namespace utils
 {
-Iterative::Iterative(types::duration_t duration)
+Iterative::Iterative(types::duration_t timeout)
     : boost::noncopyable()
     , m_paused(false)
     , m_stopped(true)
     , m_pThread(nullptr)
-    , m_duration(duration)
+    , m_timeout(timeout)
 {
 }
 
@@ -25,7 +25,7 @@ bool Iterative::start()
         boost::mutex::scoped_lock lock(m_pauseGuard);
 
         m_paused = false;
-        m_condResume.notify_one();
+        m_resumeCondition.notify_one();
     }
     else
     {
@@ -79,7 +79,7 @@ bool Iterative::stop()
         boost::mutex::scoped_lock lock(m_pauseGuard);
 
         m_paused = false;
-        m_condResume.notify_one();
+        m_resumeCondition.notify_one();
     }
 
     m_pThread->join();
@@ -90,13 +90,12 @@ bool Iterative::stop()
 
 void Iterative::loop()
 {
+    using namespace boost::chrono;
+    typedef high_resolution_clock clock_t;
+
     for (;;)
     {
-        handleTimeout();
-        handleResume();
-
-        if (handleStop())
-            return;
+        const clock_t::time_point start = clock_t::now();
 
         try
         {
@@ -107,21 +106,30 @@ void Iterative::loop()
             stop();
             return;
         }
+
+        milliseconds spent = duration_cast<milliseconds>(clock_t::now() - start);
+        handleTimeout(m_timeout - spent);
+
+        if (handleStop())
+            return;
+
+        handleResume();
     }
 }
 
-void Iterative::handleTimeout()
+void Iterative::handleTimeout(boost::chrono::milliseconds timeout)
 {
-    using namespace boost::chrono;
-    static nanoseconds ns =
-            duration_cast<nanoseconds>(milliseconds(m_duration));
-    boost::this_thread::sleep_for(ns);
+    if (timeout.count() > 0)
+    {
+        using namespace boost::chrono;
+        boost::this_thread::sleep_for(duration_cast<nanoseconds>(timeout));
+    }
 }
 
 void Iterative::handleResume()
 {
     boost::mutex::scoped_lock lock(m_pauseGuard);
-    while(m_paused) m_condResume.wait(lock);
+    while(m_paused) m_resumeCondition.wait(lock);
 }
 
 bool Iterative::handleStop()

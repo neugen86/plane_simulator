@@ -40,4 +40,5 @@ FORMS    += \
 
 LIBS    += \
     -lboost_system \
-    -lboost_thread
+    -lboost_thread \
+    -lboost_chrono

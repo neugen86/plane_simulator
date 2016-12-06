@@ -31,4 +31,5 @@ LIBS    += \
     -L/usr/local/lib -lgtest_main \
     -lboost_system \
     -lboost_thread \
+    -lboost_chrono \
     -lpthread

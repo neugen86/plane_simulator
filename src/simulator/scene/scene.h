@@ -36,14 +36,19 @@ class Scene
 
     const Settings m_settings;
 
+    boost::mutex m_grabGuard;
     boost::mutex m_insertGuard;
     boost::mutex m_removeGuard;
+    boost::mutex m_gravityGuard;
 
     std::list<physics::Object> m_addList;
     std::set<types::obj_id> m_removeList;
 
 public:
     Scene(const Settings& settings = Settings());
+
+    physics::Gravity::Type gravityType();
+    void setGravityType(physics::Gravity::Type type);
 
     void addObject(const physics::Object& object);
     void removeObject(types::obj_id id);

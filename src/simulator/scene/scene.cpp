@@ -13,6 +13,18 @@ Scene::Scene(const Settings& settings)
 {
 }
 
+physics::Gravity::Type Scene::gravityType()
+{
+    boost::mutex::scoped_lock lock(m_gravityGuard);
+    return m_director.gravityType();
+}
+
+void Scene::setGravityType(physics::Gravity::Type type)
+{
+    boost::mutex::scoped_lock lock(m_gravityGuard);
+    m_director.setGravityType(type);
+}
+
 void Scene::addObject(const physics::Object& object)
 {
     boost::mutex::scoped_lock lock(m_insertGuard);
@@ -27,11 +39,13 @@ void Scene::removeObject(types::obj_id id)
 
 void Scene::grabObject(types::obj_id id, const physics::Vector& velocity)
 {
+    boost::mutex::scoped_lock lock(m_grabGuard);
     m_director.grabObject(id, velocity);
 }
 
 void Scene::releaseObject(types::obj_id id)
 {
+    boost::mutex::scoped_lock lock(m_grabGuard);
     m_director.releaseObject(id);
 }
 

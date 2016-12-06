@@ -53,8 +53,22 @@ public:
     void setVelocity(const Vector& velocity) { m_velocity = velocity; }
 };
 
-types::value_t simpeGravity(const Object& lhs, const Object& rhs);
-types::value_t newtonGravity(const Object& lhs, const Object& rhs);
+class Gravity
+{
+public:
+    enum class Type
+    {
+        Simple, Newton
+    };
+
+private:
+    Type m_type;
+
+public:
+    explicit Gravity(Type type = Type::Simple) : m_type(type) {}
+    types::value_t operator()(const Object& lhs, const Object& rhs);
+    Type type() const { return m_type; }
+};
 
 bool crossing(const Object& lhs, const Object& rhs);
 

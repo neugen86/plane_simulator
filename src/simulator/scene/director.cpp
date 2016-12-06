@@ -14,20 +14,29 @@ Director::Director(std::size_t width, std::size_t height)
 {
 }
 
-const std::list<physics::Object>& Director::snapshot()
+const std::list<physics::Object>& Director::snapshot() const
 {
     return m_snapshot;
 }
 
+physics::Gravity::Type Director::gravityType() const
+{
+    return m_gravity.type();
+}
+
+void Director::setGravityType(physics::Gravity::Type type)
+{
+    if (m_gravity.type() != type)
+        m_gravity = physics::Gravity(type);
+}
+
 void Director::grabObject(types::obj_id id, const physics::Vector& velocity)
 {
-    boost::mutex::scoped_lock lock(m_grabGuard);
     m_grabbed = GrabbedObject(id, velocity);
 }
 
 void Director::releaseObject(types::obj_id id)
 {
-    boost::mutex::scoped_lock lock(m_grabGuard);
     if (m_grabbed.id() == id)
         m_grabbed = GrabbedObject();
 }

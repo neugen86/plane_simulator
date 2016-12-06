@@ -4,7 +4,6 @@
 #include <set>
 #include <list>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include "physics/physics.h"
 
@@ -17,7 +16,7 @@ class Director
     std::size_t m_sceneWidth;
     std::size_t m_sceneHeight;
 
-    boost::mutex m_grabGuard;
+    physics::Gravity m_gravity;
 
     std::list<ParticlePtr> m_particles;
     std::list<physics::Object> m_snapshot;
@@ -45,7 +44,10 @@ class Director
 public:
     explicit Director(std::size_t width, std::size_t height);
 
-    const std::list<physics::Object>& snapshot();
+    const std::list<physics::Object>& snapshot() const;
+
+    physics::Gravity::Type gravityType() const;
+    void setGravityType(physics::Gravity::Type type);
 
     void grabObject(types::obj_id id, const physics::Vector& velocity);
     void releaseObject(types::obj_id id);

@@ -26,16 +26,6 @@ Object::Object(const Point& position, types::value_t radius, types::value_t mass
     checkObjectArguments(m_radius, m_mass);
 }
 
-types::value_t simpeGravity(const Object& lhs, const Object& rhs)
-{
-    const types::value_t d = distance(lhs.position(), rhs.position());
-
-    if (d > constants::PositiveUnit)
-        return ((d - constants::PositiveUnit) / d) / d;
-
-    return constants::Zero;
-}
-
 types::value_t newtonGravity(const Object& lhs, const Object& rhs)
 {
     static const types::value_t GravitationalConstant(constants::PositiveUnit);
@@ -46,6 +36,28 @@ types::value_t newtonGravity(const Object& lhs, const Object& rhs)
         return GravitationalConstant * lhs.mass() * lhs.mass() / d / d;
 
     return constants::Zero;
+}
+
+types::value_t simpeGravity(const Object& lhs, const Object& rhs)
+{
+    const types::value_t d = distance(lhs.position(), rhs.position());
+
+    if (d > constants::PositiveUnit)
+        return ((d - constants::PositiveUnit) / d) / d;
+
+    return constants::Zero;
+}
+
+types::value_t Gravity::operator()(const Object& lhs, const Object& rhs)
+{
+    switch (m_type)
+    {
+    case Type::Newton:
+        return newtonGravity(lhs, rhs);
+    case Type::Simple:
+    default:
+        return simpeGravity(lhs, rhs);
+    }
 }
 
 bool crossing(const Object& lhs, const Object& rhs)

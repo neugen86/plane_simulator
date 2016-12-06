@@ -2,24 +2,20 @@
 
 namespace scene
 {
-using namespace physics;
+const std::size_t Settings::DefaultWidth(100);
+const std::size_t Settings::DefaultHeight(30);
+const types::duration_t Settings::DefaultTimeout(50);
 
-types::obj_id getObjectId()
-{
-    static types::obj_id counter(0);
-    return counter++;
-}
-
-const types::duration_t Scene::DefaultDuration(50);
-
-Scene::Scene(types::duration_t duration)
-    : utils::Iterative(duration)
+Scene::Scene(const Settings& settings)
+    : utils::Iterative(settings.timeout())
+    , m_director(settings.width(), settings.height())
+    , m_settings(settings)
 {
 }
 
-void Scene::addObject(const Object& object)
+void Scene::addObject(const physics::Object& object)
 {
-    boost::mutex::scoped_lock lock(m_addGuard);
+    boost::mutex::scoped_lock lock(m_insertGuard);
     m_addList.push_back(object);
 }
 
@@ -29,38 +25,40 @@ void Scene::removeObject(types::obj_id id)
     m_removeList.insert(id);
 }
 
-void Scene::iterate()
+void Scene::grabObject(types::obj_id id, const physics::Vector& velocity)
 {
-    insert();
-    remove();
-    attract();
-    collide();
-    save();
+    m_director.grabObject(id, velocity);
 }
 
-void Scene::insert()
+void Scene::releaseObject(types::obj_id id)
 {
+    m_director.releaseObject(id);
+}
 
+void Scene::iterate()
+{
+    remove();
+    insert();
+
+    m_director.attract();
+    m_director.collide();
+
+    /** TODO: remove compile error
+    feed(m_director.snapshot());
+    */
 }
 
 void Scene::remove()
 {
-
+    boost::mutex::scoped_lock lock(m_removeGuard);
+    m_director.remove(m_removeList);
+    m_removeList.clear();
 }
 
-void Scene::attract()
+void Scene::insert()
 {
-
+    boost::mutex::scoped_lock lock(m_insertGuard);
+    m_director.insert(m_addList);
+    m_addList.clear();
 }
-
-void Scene::collide()
-{
-
-}
-
-void Scene::save()
-{
-
-}
-
 } // namespace scene

@@ -47,4 +47,10 @@ types::value_t newtonGravity(const Object& lhs, const Object& rhs)
 
     return constants::Zero;
 }
+
+bool crossing(const Object& lhs, const Object& rhs)
+{
+    const types::value_t d = distance(lhs.position(), rhs.position());
+    return less(d, lhs.radius() + rhs.radius());
+}
 } // namespace physics

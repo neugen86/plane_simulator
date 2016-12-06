@@ -36,6 +36,7 @@ public:
 class Particle : public Object
 {
     bool m_fixed;
+    Vector m_gravity;
     Vector m_velocity;
 
 public:
@@ -54,6 +55,8 @@ public:
 
 types::value_t simpeGravity(const Object& lhs, const Object& rhs);
 types::value_t newtonGravity(const Object& lhs, const Object& rhs);
+
+bool crossing(const Object& lhs, const Object& rhs);
 
 } // namespace physics
 

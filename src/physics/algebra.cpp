@@ -6,6 +6,8 @@
 
 namespace physics
 {
+static const types::value_t Epsilon(std::numeric_limits<types::value_t>::epsilon());
+
 Point::Point(types::value_t x, types::value_t y)
     : m_x(x), m_y(y)
 {
@@ -47,8 +49,13 @@ types::value_t length(const Vector& vector)
     return distance(Point(), Point(vector.rx(), vector.ry()));
 }
 
+bool less(types::value_t lhs, types::value_t rhs)
+{
+    return rhs - lhs > Epsilon;
+}
+
 bool same(types::value_t lhs, types::value_t rhs)
 {
-    return std::fabs(lhs - rhs) < std::numeric_limits<types::value_t>::epsilon();
+    return std::fabs(lhs - rhs) < Epsilon;
 }
 } // namespace algebra

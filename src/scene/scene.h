@@ -1,43 +1,64 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <set>
-#include <list>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-
-#include "physics/concepts.h"
+#include "director.h"
 #include "utils/iterative.h"
+#include "interchange/broadcaster.h"
 
 namespace scene
 {
-class Scene : public utils::Iterative
+class Settings
 {
-    static const types::duration_t DefaultDuration;
-    typedef boost::shared_ptr<physics::Particle> ParticlePtr;
+    static const std::size_t DefaultWidth;
+    static const std::size_t DefaultHeight;
+    static const types::duration_t DefaultTimeout;
 
-    boost::mutex m_addGuard;
+    std::size_t m_width;
+    std::size_t m_height;
+    types::duration_t m_timeout;
+
+public:
+    explicit Settings(types::value_t width = DefaultWidth,
+                      types::value_t height = DefaultHeight,
+                      types::duration_t timeout = DefaultTimeout)
+        : m_width(width), m_height(height), m_timeout(timeout) {}
+
+    std::size_t width() const { return m_width; }
+    std::size_t height() const { return m_height; }
+    types::duration_t timeout() const { return m_timeout; }
+};
+
+class Scene
+        : public utils::Iterative
+        , public interchange::Broadcaster<physics::Object>
+{
+    Director m_director;
+
+    const Settings m_settings;
+
+    boost::mutex m_insertGuard;
     boost::mutex m_removeGuard;
 
     std::list<physics::Object> m_addList;
     std::set<types::obj_id> m_removeList;
 
-    std::list<ParticlePtr> m_particles;
-
 public:
-    Scene(types::duration_t duration = DefaultDuration);
+    Scene(const Settings& settings = Settings());
 
     void addObject(const physics::Object& object);
     void removeObject(types::obj_id id);
 
+    void grabObject(types::obj_id id, const physics::Vector& velocity);
+    void releaseObject(types::obj_id id);
+
+    const Settings& settings() const { return m_settings; }
+
 private:
     void iterate();
 
-    void insert();
     void remove();
-    void attract();
-    void collide();
-    void save();
+    void insert();
+
 };
 } // namespace scene
 

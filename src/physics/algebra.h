@@ -49,6 +49,7 @@ const Vector normalize(const Vector& vector);
 types::value_t distance(const Point& lhs, const Point& rhs);
 types::value_t length(const Vector& vector);
 
+bool less(types::value_t lhs, types::value_t rhs);
 bool same(types::value_t lhs, types::value_t rhs);
 
 } // namespace algebra

@@ -5,26 +5,22 @@ CONFIG -= qt
 
 SOURCES += \
     main.cpp \
-    ../src/physics/algebra.cpp \
-    ../src/physics/concepts.cpp \
-    ../src/scene/scene.cpp \
-    ../src/utils/iterative.cpp
-
+    ../src/simulator/interchange/broadcaster.cpp \
+    ../src/simulator/interchange/subscription.cpp \
+    ../src/simulator/physics/algebra.cpp \
+    ../src/simulator/physics/physics.cpp \
+    ../src/simulator/scene/director.cpp \
+    ../src/simulator/scene/scene.cpp \
+    ../src/simulator/utils/iterative.cpp
 
 HEADERS += \
     algebra_test.h \
     concepts_test.h \
-    scene_test.h \
-    ../src/physics/algebra.h \
-    ../src/physics/concepts.h \
-    ../src/physics/constants.h \
-    ../src/scene/scene.h \
-    ../src/utils/iterative.h \
-    ../src/utils/types.h \
+    scene_test.h
 
 INCLUDEPATH += \
     /usr/include/gtest \
-    ../src
+    ../src/simulator
 
 LIBS    += \
     -L/usr/local/lib -lgtest \

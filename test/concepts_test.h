@@ -2,7 +2,7 @@
 #define CONCEPTS_TEST_H
 
 #include <stdexcept>
-#include "physics/concepts.h"
+#include "physics/physics.h"
 
 using namespace physics;
 

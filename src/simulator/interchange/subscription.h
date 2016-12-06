@@ -2,7 +2,6 @@
 #define SUBSCRIPTION_H
 
 #include <list>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 

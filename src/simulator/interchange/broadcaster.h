@@ -1,8 +1,6 @@
 #ifndef BROADCASTER_H
 #define BROADCASTER_H
 
-#include <vector>
-#include <iterator>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 

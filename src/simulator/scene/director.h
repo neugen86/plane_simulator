@@ -6,7 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "physics/concepts.h"
+#include "physics/physics.h"
 
 namespace scene
 {

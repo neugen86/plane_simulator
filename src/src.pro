@@ -14,29 +14,33 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp\
-    mainwindow.cpp \
-    interchange/broadcaster.cpp \
-    interchange/subscription.cpp \
-    physics/algebra.cpp \
-    physics/concepts.cpp \
-    scene/scene.cpp \
-    scene/director.cpp \
-    utils/iterative.cpp
+    gui/mainwindow.cpp \
+    simulator/interchange/broadcaster.cpp \
+    simulator/interchange/subscription.cpp \
+    simulator/physics/algebra.cpp \
+    simulator/physics/physics.cpp \
+    simulator/scene/scene.cpp \
+    simulator/scene/director.cpp \
+    simulator/utils/iterative.cpp
 
 HEADERS  += \
-    mainwindow.h \
-    interchange/broadcaster.h \
-    interchange/subscription.h \
-    physics/algebra.h \
-    physics/concepts.h \
-    physics/constants.h \
-    scene/scene.h \
-    scene/director.h \
-    utils/iterative.h \
-    utils/types.h
+    gui/mainwindow.h \
+    simulator/interchange/broadcaster.h \
+    simulator/interchange/subscription.h \
+    simulator/physics/algebra.h \
+    simulator/physics/constants.h \
+    simulator/physics/physics.h \
+    simulator/scene/scene.h \
+    simulator/scene/director.h \
+    simulator/utils/iterative.h \
+    simulator/utils/types.h
 
 FORMS    += \
-    mainwindow.ui
+    gui/mainwindow.ui
+
+INCLUDEPATH += \
+    simulator \
+    gui
 
 LIBS    += \
     -lboost_system \

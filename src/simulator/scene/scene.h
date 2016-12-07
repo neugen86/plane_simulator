@@ -53,14 +53,13 @@ public:
     void addObject(const physics::Object& object);
     void removeObject(types::obj_id id);
 
-    void grabObject(types::obj_id id, const physics::Vector& velocity);
+    void grabObject(types::obj_id id, const physics::Point& position);
     void releaseObject(types::obj_id id);
 
     const Settings& settings() const { return m_settings; }
 
 private:
     void iterate();
-
     void remove();
     void insert();
 

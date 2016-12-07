@@ -37,10 +37,10 @@ void Scene::removeObject(types::obj_id id)
     m_removeList.insert(id);
 }
 
-void Scene::grabObject(types::obj_id id, const physics::Vector& velocity)
+void Scene::grabObject(types::obj_id id, const physics::Point& position)
 {
     boost::mutex::scoped_lock lock(m_grabGuard);
-    m_director.grabObject(id, velocity);
+    m_director.grabObject(id, position);
 }
 
 void Scene::releaseObject(types::obj_id id)
@@ -54,11 +54,14 @@ void Scene::iterate()
     remove();
     insert();
 
-    m_director.attract();
-    m_director.collide();
+    const bool haveSubscriptions = true;
+
+    m_director.gravitate();
+    m_director.move(haveSubscriptions);
 
     /** TODO: remove compile error
-    feed(m_director.snapshot());
+    if (haveSubscriptions)
+        feed(m_director.snapshot());
     */
 }
 

@@ -34,6 +34,9 @@ public:
                     types::value_t ry = constants::Zero)
         : m_rx(rx), m_ry(ry) {}
 
+    explicit Vector(const Point& from, const Point& to)
+        : m_rx(to.x() - from.x()), m_ry(to.y() - from.y()) {}
+
     types::value_t rx() const { return m_rx; }
     types::value_t ry() const { return m_ry; }
 
@@ -41,16 +44,27 @@ public:
     void setRy(types::value_t ry) { m_ry = ry; }
 };
 
-const Vector operator+(const Vector& lhs, const Vector& rhs);
-const Vector operator*(const Vector& vector, types::value_t scalar);
-const Vector operator*(types::value_t scalar, const Vector& vector);
+const Vector operator +(const Vector& lhs, const Vector& rhs);
+const Vector operator -(const Vector& lhs, const Vector& rhs);
+const Vector operator +=(Vector& lhs, const Vector& rhs);
+const Vector operator -=(Vector& lhs, const Vector& rhs);
+const Vector operator *(const Vector& vector, types::value_t scalar);
+const Vector operator *(types::value_t scalar, const Vector& vector);
+const Vector operator *(const Vector& lhs, const Vector& rhs);
+const Vector operator /(const Vector& vector, types::value_t scalar);
+const Vector operator *=(Vector& lhs, types::value_t scalar);
+const Vector operator *=(Vector& lhs, const Vector& rhs);
+
+const Vector flipHorizontal(const Vector& vector);
+const Vector flipVertical(const Vector& vector);
 const Vector normalize(const Vector& vector);
+const Vector turn(const Vector& vector);
 
 types::value_t distance(const Point& lhs, const Point& rhs);
 types::value_t length(const Vector& vector);
 
-bool less(types::value_t lhs, types::value_t rhs);
 bool same(types::value_t lhs, types::value_t rhs);
+bool less(types::value_t lhs, types::value_t rhs);
 
 } // namespace algebra
 

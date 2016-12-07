@@ -25,6 +25,8 @@ SOURCES += \
 
 HEADERS  += \
     gui/mainwindow.h \
+    simulator/concurrent/event.h \
+    simulator/concurrent/lock.h \
     simulator/interchange/broadcaster.h \
     simulator/interchange/subscription.h \
     simulator/physics/algebra.h \

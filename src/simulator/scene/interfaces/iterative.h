@@ -1,33 +1,33 @@
 #ifndef ITERATIVE_H
 #define ITERATIVE_H
 
-#include "physics/types.h"
-
 #include <boost/noncopyable.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+
+#include "physics/types.h"
+#include "concurrent/lock.h"
+#include "concurrent/event.h"
 
 namespace scene
 {
 namespace utils
 {
-class Iterative : private boost::noncopyable
+class Iterative
+        : private boost::noncopyable
 {
     bool m_paused;
     bool m_stopped;
+    bool m_finishFlag;
 
-    boost::mutex m_guard;
-    boost::mutex m_stopGuard;
-    boost::mutex m_pauseGuard;
+    concurrent::event m_resumeEvent;
 
-    boost::condition_variable m_resumeCondition;
+    concurrent::spinlock m_lock;
+    concurrent::spinlock m_finishLock;
 
     boost::shared_ptr<boost::thread> m_pThread;
 
-    const boost::chrono::milliseconds m_timeout;
-
 public:
-    explicit Iterative(types::duration_t timeout);
+    Iterative();
     virtual ~Iterative();
 
     bool start();
@@ -36,9 +36,6 @@ public:
 
 private:
     void loop();
-    void handleTimeout(boost::chrono::milliseconds timeout);
-    void handleResume();
-    bool handleStop();
 
 private:
     virtual void iterate() = 0;

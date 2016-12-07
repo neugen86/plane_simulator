@@ -29,28 +29,28 @@ public:
 };
 
 class Scene
-        : public scene::utils::Iterative
+        : public utils::Iterative
         , public interchange::Broadcaster
 {
     Director m_director;
 
     const Settings m_settings;
 
-    boost::mutex m_grabGuard;
-    boost::mutex m_insertGuard;
-    boost::mutex m_removeGuard;
-    boost::mutex m_gravityGuard;
+    concurrent::spinlock m_grabLock;
+    concurrent::spinlock m_insertLock;
+    concurrent::spinlock m_removeLock;
+    concurrent::spinlock m_gravityLock;
 
-    std::list<physics::Object> m_addList;
     std::set<types::obj_id> m_removeList;
+    std::list<physics::Object> m_insertList;
 
 public:
-    Scene(const Settings& settings = Settings());
+    explicit Scene(const Settings& settings = Settings());
 
     physics::Gravity::Type gravityType();
     void setGravityType(physics::Gravity::Type type);
 
-    void addObject(const physics::Object& object);
+    void insertObject(const physics::Object& object);
     void removeObject(types::obj_id id);
 
     void grabObject(types::obj_id id, const physics::Point& position);

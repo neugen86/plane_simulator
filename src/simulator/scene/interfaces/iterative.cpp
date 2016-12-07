@@ -4,12 +4,14 @@ namespace scene
 {
 namespace utils
 {
-Iterative::Iterative(types::duration_t timeout)
+Iterative::Iterative()
     : boost::noncopyable()
     , m_paused(false)
     , m_stopped(true)
+    , m_finishFlag(true)
+    , m_lock()
+    , m_finishLock()
     , m_pThread(nullptr)
-    , m_timeout(timeout)
 {
 }
 
@@ -20,30 +22,33 @@ Iterative::~Iterative()
 
 bool Iterative::start()
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
     if (m_paused)
     {
-        boost::mutex::scoped_lock lock(m_pauseGuard);
-
+        m_resumeEvent.reset();
         m_paused = false;
-        m_resumeCondition.notify_one();
+        return true;
     }
-    else
-    {
-        if (!m_stopped)
-            return false;
 
-        try
+    if (!m_stopped)
+        return false;
+
+    try
+    {
+        m_stopped = false;
+
         {
-            m_stopped = false;
-            m_pThread.reset(new boost::thread(&Iterative::loop, this));
+            concurrent::guard guard(m_finishLock);
+            m_finishFlag = false;
         }
-        catch (...)
-        {
-            m_stopped = true;
-            return false;
-        }
+
+        m_pThread.reset(new boost::thread(&Iterative::loop, this));
+    }
+    catch (...)
+    {
+        m_stopped = true;
+        return false;
     }
 
     return true;
@@ -51,54 +56,44 @@ bool Iterative::start()
 
 bool Iterative::pause()
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
     if (m_stopped || m_paused)
         return false;
 
-    {
-        boost::mutex::scoped_lock lock(m_pauseGuard);
-        m_paused = true;
-    }
+    m_resumeEvent.set();
+    m_paused = true;
 
     return true;
 }
 
 bool Iterative::stop()
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
     if (m_stopped)
         return false;
 
     {
-        boost::mutex::scoped_lock lock(m_stopGuard);
-        m_stopped = true;
+        concurrent::guard guard(m_finishLock);
+        m_finishFlag = true;
     }
 
     if (m_paused)
-    {
-        boost::mutex::scoped_lock lock(m_pauseGuard);
-
-        m_paused = false;
-        m_resumeCondition.notify_one();
-    }
+        m_resumeEvent.reset();
 
     m_pThread->join();
     m_pThread.reset();
+
+    m_stopped = true;
 
     return true;
 }
 
 void Iterative::loop()
 {
-    using namespace boost::chrono;
-    typedef high_resolution_clock clock_t;
-
     for (;;)
     {
-        const clock_t::time_point start = clock_t::now();
-
         try
         {
             iterate();
@@ -109,35 +104,13 @@ void Iterative::loop()
             return;
         }
 
-        milliseconds spent = duration_cast<milliseconds>(clock_t::now() - start);
-        handleTimeout(m_timeout - spent);
+        {
+            concurrent::guard guard(m_finishLock);
+            if (m_finishFlag) return;
+        }
 
-        if (handleStop())
-            return;
-
-        handleResume();
+        m_resumeEvent.wait();
     }
-}
-
-void Iterative::handleTimeout(boost::chrono::milliseconds timeout)
-{
-    if (timeout.count() > 0)
-    {
-        using namespace boost::chrono;
-        boost::this_thread::sleep_for(duration_cast<nanoseconds>(timeout));
-    }
-}
-
-void Iterative::handleResume()
-{
-    boost::mutex::scoped_lock lock(m_pauseGuard);
-    while(m_paused) m_resumeCondition.wait(lock);
-}
-
-bool Iterative::handleStop()
-{
-    boost::mutex::scoped_lock lock(m_stopGuard);
-    return m_stopped;
 }
 } // namespace utils
 } // namespace scene

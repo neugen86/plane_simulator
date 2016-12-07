@@ -4,11 +4,14 @@ namespace interchange
 {
 typedef boost::shared_ptr<Subscription> SubscriptionPtr;
 
+Broadcaster::Broadcaster()
+    : m_lock() {}
+
 ReaderPtr Broadcaster::subscribe()
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
-    SubscriptionPtr pSubscription(new Subscription);
+    const SubscriptionPtr pSubscription(new Subscription);
     m_subscriptions.push_back(pSubscription);
 
     return pSubscription;
@@ -16,23 +19,23 @@ ReaderPtr Broadcaster::subscribe()
 
 void Broadcaster::unsubscribe(const ReaderPtr& reader)
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
-    SubscriptionPtr pSubscription =
+    const SubscriptionPtr pSubscription =
             boost::static_pointer_cast<Subscription>(reader);
 
     m_subscriptions.remove(pSubscription);
 }
 
-bool Broadcaster::broadcasting()
+bool Broadcaster::haveSubscriptions() const
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
     return !m_subscriptions.empty();
 }
 
 void Broadcaster::feed(const ObjectList& list)
 {
-    boost::mutex::scoped_lock lock(m_guard);
+    concurrent::guard guard(m_lock);
 
     for (const WriterPtr& writer: m_subscriptions)
     {

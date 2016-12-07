@@ -7,45 +7,50 @@ const std::size_t Settings::DefaultHeight(30);
 const types::duration_t Settings::DefaultTimeout(50);
 
 Scene::Scene(const Settings& settings)
-    : utils::Iterative(settings.timeout())
+    : utils::Iterative()
+    , interchange::Broadcaster()
     , m_director(settings.width(), settings.height())
     , m_settings(settings)
+    , m_grabLock()
+    , m_insertLock()
+    ,m_removeLock()
+    , m_gravityLock()
 {
 }
 
 physics::Gravity::Type Scene::gravityType()
 {
-    boost::mutex::scoped_lock lock(m_gravityGuard);
+    concurrent::guard guard(m_gravityLock);
     return m_director.gravityType();
 }
 
 void Scene::setGravityType(physics::Gravity::Type type)
 {
-    boost::mutex::scoped_lock lock(m_gravityGuard);
+    concurrent::guard guard(m_gravityLock);
     m_director.setGravityType(type);
 }
 
-void Scene::addObject(const physics::Object& object)
+void Scene::insertObject(const physics::Object& object)
 {
-    boost::mutex::scoped_lock lock(m_insertGuard);
-    m_addList.push_back(object);
+    concurrent::guard guard(m_insertLock);
+    m_insertList.push_back(object);
 }
 
 void Scene::removeObject(types::obj_id id)
 {
-    boost::mutex::scoped_lock lock(m_removeGuard);
+    concurrent::guard guard(m_removeLock);
     m_removeList.insert(id);
 }
 
 void Scene::grabObject(types::obj_id id, const physics::Point& position)
 {
-    boost::mutex::scoped_lock lock(m_grabGuard);
+    concurrent::guard guard(m_grabLock);
     m_director.grabObject(id, position);
 }
 
 void Scene::releaseObject(types::obj_id id)
 {
-    boost::mutex::scoped_lock lock(m_grabGuard);
+    concurrent::guard guard(m_grabLock);
     m_director.releaseObject(id);
 }
 
@@ -54,26 +59,27 @@ void Scene::iterate()
     remove();
     insert();
 
-    const bool haveSubscriptions = broadcasting();
+    const bool withSnapshot =
+            haveSubscriptions();
 
     m_director.gravitate();
-    m_director.move(haveSubscriptions);
+    m_director.move(withSnapshot);
 
-    if (haveSubscriptions)
+    if (withSnapshot)
         feed(m_director.snapshot());
 }
 
 void Scene::remove()
 {
-    boost::mutex::scoped_lock lock(m_removeGuard);
+    concurrent::guard guard(m_removeLock);
     m_director.remove(m_removeList);
     m_removeList.clear();
 }
 
 void Scene::insert()
 {
-    boost::mutex::scoped_lock lock(m_insertGuard);
-    m_director.insert(m_addList);
-    m_addList.clear();
+    concurrent::guard guard(m_insertLock);
+    m_director.insert(m_insertList);
+    m_insertList.clear();
 }
 } // namespace scene

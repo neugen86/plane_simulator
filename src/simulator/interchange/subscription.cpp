@@ -4,27 +4,26 @@ namespace interchange
 {
 void Subscription::set(const ObjectList& list)
 {
-    boost::mutex::scoped_lock lock(m_listGuard);
+    concurrent::guard guard(m_listLock);
     m_list = list;
 }
 
-ObjectList Subscription::get()
+ObjectList Subscription::get() const
 {
-    boost::mutex::scoped_lock lock(m_listGuard);
+    concurrent::guard guard(m_listLock);
     return m_list;
 }
 
-void Subscription::notify()
+void Subscription::notify() const
 {
-    boost::mutex::scoped_lock lock(m_notifyGuard);
-    m_notify = true;
+    concurrent::guard guard(m_eventLock);
+    m_event.set();
 }
 
-void Subscription::wait()
+void Subscription::wait() const
 {
-    boost::mutex::scoped_lock lock(m_notifyGuard);
-    while (!m_notify) m_notifyCondition.wait(lock);
-    m_notify = false;
+    concurrent::guard guard(m_eventLock);
+    m_event.wait();
+    m_event.reset();
 }
-
 } // namespace interchange

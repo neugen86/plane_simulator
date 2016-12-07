@@ -12,14 +12,18 @@ class Broadcaster
 private:
     typedef boost::shared_ptr<SubscriptionWriter> WriterPtr;
 
-    boost::mutex m_guard;
+    mutable concurrent::spinlock m_lock;
+
     std::list<WriterPtr> m_subscriptions;
 
 public:
+    Broadcaster();
+    virtual ~Broadcaster() {}
+
     ReaderPtr subscribe();
     void unsubscribe(const ReaderPtr& reader);
 
-    bool broadcasting();
+    bool haveSubscriptions() const;
 
 protected:
     void feed(const ObjectList& list);

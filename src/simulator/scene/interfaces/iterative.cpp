@@ -1,5 +1,7 @@
 #include "iterative.h"
 
+namespace scene
+{
 namespace utils
 {
 Iterative::Iterative(types::duration_t timeout)
@@ -138,3 +140,4 @@ bool Iterative::handleStop()
     return m_stopped;
 }
 } // namespace utils
+} // namespace scene

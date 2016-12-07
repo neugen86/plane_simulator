@@ -1,63 +1,54 @@
 #ifndef SUBSCRIPTION_H
 #define SUBSCRIPTION_H
 
+#include "physics/types.h"
+
 #include <list>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-#include "utils/types.h"
-
 namespace interchange
 {
-template <typename T>
-class SubscriptionReader
+typedef std::list<physics::ObjectPtr> ObjectList;
+
+class SubscriptionBase
 {
 public:
-    virtual ~SubscriptionReader() {}
+    virtual ~SubscriptionBase() {}
+};
 
-    virtual std::list<T> get() = 0;
+class SubscriptionReader
+        : public virtual SubscriptionBase
+{
+public:
+    virtual ObjectList get() = 0;
     virtual void wait() = 0;
 };
 
-template <typename T>
 class SubscriptionWriter
+        : public virtual SubscriptionBase
 {
-    const boost::chrono::milliseconds m_duration;
-    boost::chrono::high_resolution_clock::time_point m_prevTime;
-
 public:
-    explicit SubscriptionWriter(types::duration_t duration)
-        : m_duration(duration) {}
-
-    virtual ~SubscriptionWriter() {}
-
-    virtual void set(const std::list<T>& list) = 0;
+    virtual void set(const ObjectList& list) = 0;
     virtual void notify() = 0;
-
-    bool expired();
 };
 
-template <typename T>
 class Subscription
-        : public SubscriptionReader<T>
-        , public SubscriptionWriter<T>
+        : public SubscriptionReader
+        , public SubscriptionWriter
 {
     bool m_notify;
+
+    ObjectList m_list;
 
     boost::mutex m_listGuard;
     boost::mutex m_notifyGuard;
 
     boost::condition_variable m_notifyCondition;
 
-    std::list<T> m_list;
-
 public:
-    explicit Subscription(types::duration_t duration)
-        : SubscriptionReader<T>()
-        , SubscriptionWriter<T>(duration) {}
-
-    void set(const std::list<T>& list);
-    std::list<T> get();
+    void set(const ObjectList& list);
+    ObjectList get();
 
     void notify();
     void wait();

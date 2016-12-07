@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include "utils/types.h"
+#include "types.h"
 
 namespace physics
 {

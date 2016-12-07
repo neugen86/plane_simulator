@@ -3,7 +3,6 @@
 
 #include <set>
 #include <list>
-#include <boost/shared_ptr.hpp>
 
 #include "physics/physics.h"
 

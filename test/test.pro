@@ -9,9 +9,9 @@ SOURCES += \
     ../src/simulator/interchange/subscription.cpp \
     ../src/simulator/physics/algebra.cpp \
     ../src/simulator/physics/physics.cpp \
+    ../src/simulator/scene/interfaces/iterative.cpp \
     ../src/simulator/scene/director.cpp \
     ../src/simulator/scene/scene.cpp \
-    ../src/simulator/utils/iterative.cpp
 
 HEADERS += \
     algebra_test.h \

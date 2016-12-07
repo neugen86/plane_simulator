@@ -1,31 +1,28 @@
 #ifndef BROADCASTER_H
 #define BROADCASTER_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-
-#include "utils/types.h"
 #include "subscription.h"
 
 namespace interchange
 {
-template <typename T>
+typedef boost::shared_ptr<SubscriptionReader> ReaderPtr;
+
 class Broadcaster
 {
-public:
-    typedef boost::shared_ptr<SubscriptionReader<T>> ReaderPtr;
-    typedef boost::shared_ptr<SubscriptionWriter<T>> WriterPtr;
-
 private:
+    typedef boost::shared_ptr<SubscriptionWriter> WriterPtr;
+
     boost::mutex m_guard;
     std::list<WriterPtr> m_subscriptions;
 
 public:
-    ReaderPtr subscribe(types::duration_t duration);
-    void unsubscribe(const ReaderPtr& subscription);
+    ReaderPtr subscribe();
+    void unsubscribe(const ReaderPtr& reader);
+
+    bool broadcasting();
 
 protected:
-    void feed(const std::list<T>& list);
+    void feed(const ObjectList& list);
 
 };
 } // namespace interchange

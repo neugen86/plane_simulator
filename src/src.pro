@@ -19,9 +19,9 @@ SOURCES += \
     simulator/interchange/subscription.cpp \
     simulator/physics/algebra.cpp \
     simulator/physics/physics.cpp \
+    simulator/scene/interfaces/iterative.cpp \
     simulator/scene/scene.cpp \
-    simulator/scene/director.cpp \
-    simulator/utils/iterative.cpp
+    simulator/scene/director.cpp
 
 HEADERS  += \
     gui/mainwindow.h \
@@ -30,10 +30,10 @@ HEADERS  += \
     simulator/physics/algebra.h \
     simulator/physics/constants.h \
     simulator/physics/physics.h \
+    simulator/physics/types.h \
+    simulator/scene/interfaces/iterative.h \
     simulator/scene/scene.h \
-    simulator/scene/director.h \
-    simulator/utils/iterative.h \
-    simulator/utils/types.h
+    simulator/scene/director.h
 
 FORMS    += \
     gui/mainwindow.ui

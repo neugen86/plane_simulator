@@ -2,7 +2,7 @@
 #define SCENE_H
 
 #include "director.h"
-#include "utils/iterative.h"
+#include "interfaces/iterative.h"
 #include "interchange/broadcaster.h"
 
 namespace scene
@@ -29,8 +29,8 @@ public:
 };
 
 class Scene
-        : public utils::Iterative
-        , public interchange::Broadcaster<physics::Object>
+        : public scene::utils::Iterative
+        , public interchange::Broadcaster
 {
     Director m_director;
 

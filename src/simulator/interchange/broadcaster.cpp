@@ -2,35 +2,41 @@
 
 namespace interchange
 {
-template <typename T>
-boost::shared_ptr<SubscriptionReader<T>> Broadcaster<T>::subscribe(types::duration_t duration)
-{
-    boost::shared_ptr<Subscription<T>> subscription(new Subscription<T>(duration));
+typedef boost::shared_ptr<Subscription> SubscriptionPtr;
 
-    {
-        boost::mutex::scoped_lock lock(m_guard);
-        m_subscriptions.push_back(subscription);
-    }
-
-    return subscription;
-}
-
-template <typename T>
-void Broadcaster<T>::unsubscribe(const ReaderPtr& subscription)
+ReaderPtr Broadcaster::subscribe()
 {
     boost::mutex::scoped_lock lock(m_guard);
-    m_subscriptions.erase(m_subscriptions.remove(subscription));
+
+    SubscriptionPtr pSubscription(new Subscription);
+    m_subscriptions.push_back(pSubscription);
+
+    return pSubscription;
 }
 
-template <typename T>
-void Broadcaster<T>::feed(const std::list<T>& list)
+void Broadcaster::unsubscribe(const ReaderPtr& reader)
+{
+    boost::mutex::scoped_lock lock(m_guard);
+
+    SubscriptionPtr pSubscription =
+            boost::static_pointer_cast<Subscription>(reader);
+
+    m_subscriptions.remove(pSubscription);
+}
+
+bool Broadcaster::broadcasting()
+{
+    boost::mutex::scoped_lock lock(m_guard);
+    return !m_subscriptions.empty();
+}
+
+void Broadcaster::feed(const ObjectList& list)
 {
     boost::mutex::scoped_lock lock(m_guard);
 
     for (const WriterPtr& writer: m_subscriptions)
     {
-        if (writer->expired())
-            writer->set(list);
+        writer->set(list);
     }
 }
 } // namespace interchange

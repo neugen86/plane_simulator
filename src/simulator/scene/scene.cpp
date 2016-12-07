@@ -54,15 +54,13 @@ void Scene::iterate()
     remove();
     insert();
 
-    const bool haveSubscriptions = true;
+    const bool haveSubscriptions = broadcasting();
 
     m_director.gravitate();
     m_director.move(haveSubscriptions);
 
-    /** TODO: remove compile error
     if (haveSubscriptions)
         feed(m_director.snapshot());
-    */
 }
 
 void Scene::remove()

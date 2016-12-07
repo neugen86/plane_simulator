@@ -1,12 +1,14 @@
 #ifndef ITERATIVE_H
 #define ITERATIVE_H
 
-#include "utils/types.h"
-#include <boost/shared_ptr.hpp>
+#include "physics/types.h"
+
 #include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
+namespace scene
+{
 namespace utils
 {
 class Iterative : private boost::noncopyable
@@ -43,5 +45,6 @@ private:
 
 };
 } // namespace utils
+} // namespace scene
 
 #endif // ITERATIVE_H

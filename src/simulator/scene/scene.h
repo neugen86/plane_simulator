@@ -1,53 +1,42 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "director.h"
-#include "interfaces/iterative.h"
+#include "logic.h"
+#include "interface/periodic.h"
+#include "interface/playable.h"
+#include "interface/controllable_container.h"
 #include "interchange/broadcaster.h"
 
 namespace scene
 {
-class Settings
+class Scene
+        : public interface::Periodic
+        , public interface::Playable
+        , public interface::WithGravity
+        , public interface::ControllableContainer
+        , public interchange::Broadcaster
 {
     static const std::size_t DefaultWidth;
     static const std::size_t DefaultHeight;
-    static const types::duration_t DefaultTimeout;
 
-    std::size_t m_width;
-    std::size_t m_height;
-    types::duration_t m_timeout;
+    Logic m_logic;
 
-public:
-    explicit Settings(types::value_t width = DefaultWidth,
-                      types::value_t height = DefaultHeight,
-                      types::duration_t timeout = DefaultTimeout)
-        : m_width(width), m_height(height), m_timeout(timeout) {}
-
-    std::size_t width() const { return m_width; }
-    std::size_t height() const { return m_height; }
-    types::duration_t timeout() const { return m_timeout; }
-};
-
-class Scene
-        : public utils::Iterative
-        , public interchange::Broadcaster
-{
-    Director m_director;
-
-    const Settings m_settings;
+    const std::size_t m_width;
+    const std::size_t m_height;
 
     concurrent::spinlock m_grabLock;
     concurrent::spinlock m_insertLock;
     concurrent::spinlock m_removeLock;
-    concurrent::spinlock m_gravityLock;
+    mutable concurrent::spinlock m_gravityLock;
 
     std::set<types::obj_id> m_removeList;
     std::list<physics::Object> m_insertList;
 
 public:
-    explicit Scene(const Settings& settings = Settings());
+    explicit Scene(std::size_t width = DefaultWidth,
+                   std::size_t height = DefaultHeight);
 
-    physics::Gravity::Type gravityType();
+    physics::Gravity::Type gravityType() const;
     void setGravityType(physics::Gravity::Type type);
 
     void insertObject(const physics::Object& object);
@@ -56,12 +45,16 @@ public:
     void grabObject(types::obj_id id, const physics::Point& position);
     void releaseObject(types::obj_id id);
 
-    const Settings& settings() const { return m_settings; }
+    std::size_t width() { return m_width; }
+    std::size_t height() { return m_height; }
 
 private:
-    void iterate();
     void remove();
     void insert();
+
+    bool needSnapshot() const;
+
+    void play();
 
 };
 } // namespace scene

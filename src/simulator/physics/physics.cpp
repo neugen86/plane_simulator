@@ -52,11 +52,13 @@ types::value_t Gravity::operator()(const Object& lhs, const Object& rhs)
 {
     switch (m_type)
     {
+    case Type::Simple:
+        return simpeGravity(lhs, rhs);
     case Type::Newton:
         return newtonGravity(lhs, rhs);
-    case Type::Simple:
+    case Type::None:
     default:
-        return simpeGravity(lhs, rhs);
+        return constants::Zero;
     }
 }
 

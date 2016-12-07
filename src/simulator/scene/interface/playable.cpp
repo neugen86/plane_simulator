@@ -1,10 +1,10 @@
-#include "iterative.h"
+#include "playable.h"
 
 namespace scene
 {
-namespace utils
+namespace interface
 {
-Iterative::Iterative()
+Playable::Playable()
     : boost::noncopyable()
     , m_paused(false)
     , m_stopped(true)
@@ -15,12 +15,12 @@ Iterative::Iterative()
 {
 }
 
-Iterative::~Iterative()
+Playable::~Playable()
 {
     stop();
 }
 
-bool Iterative::start()
+bool Playable::start()
 {
     concurrent::guard guard(m_lock);
 
@@ -43,7 +43,7 @@ bool Iterative::start()
             m_finishFlag = false;
         }
 
-        m_pThread.reset(new boost::thread(&Iterative::loop, this));
+        m_pThread.reset(new boost::thread(&Playable::loop, this));
     }
     catch (...)
     {
@@ -54,7 +54,7 @@ bool Iterative::start()
     return true;
 }
 
-bool Iterative::pause()
+bool Playable::pause()
 {
     concurrent::guard guard(m_lock);
 
@@ -67,7 +67,7 @@ bool Iterative::pause()
     return true;
 }
 
-bool Iterative::stop()
+bool Playable::stop()
 {
     concurrent::guard guard(m_lock);
 
@@ -90,13 +90,13 @@ bool Iterative::stop()
     return true;
 }
 
-void Iterative::loop()
+void Playable::loop()
 {
     for (;;)
     {
         try
         {
-            iterate();
+            play();
         }
         catch (...)
         {
@@ -112,5 +112,5 @@ void Iterative::loop()
         m_resumeEvent.wait();
     }
 }
-} // namespace utils
+} // namespace interface
 } // namespace scene

@@ -1,16 +1,19 @@
-#ifndef DIRECTOR_H
-#define DIRECTOR_H
+#ifndef LOGIC_H
+#define LOGIC_H
 
 #include <set>
 #include <list>
 
-#include "physics/physics.h"
+#include "interface/with_gravity.h"
+#include "interface/controllable.h"
 
 namespace scene
 {
 typedef boost::shared_ptr<physics::Object> ObjectPtr;
 
-class Director
+class Logic
+        : public interface::WithGravity
+        , public interface::Controllable
 {
     typedef boost::shared_ptr<physics::Particle> ParticlePtr;
 
@@ -43,15 +46,15 @@ class Director
     } m_grabbed;
 
 public:
-    explicit Director(std::size_t width, std::size_t height);
-
-    const std::list<ObjectPtr>& snapshot() const;
+    explicit Logic(std::size_t width, std::size_t height);
 
     physics::Gravity::Type gravityType() const;
     void setGravityType(physics::Gravity::Type type);
 
     void grabObject(types::obj_id id, const physics::Point& position);
     void releaseObject(types::obj_id id);
+
+    const std::list<ObjectPtr>& snapshot() const;
 
     void remove(const std::set<types::obj_id>& list);
     void insert(const std::list<physics::Object>& list);
@@ -67,4 +70,4 @@ private:
 };
 } // namespace scene
 
-#endif // DIRECTOR_H
+#endif // LOGIC_H

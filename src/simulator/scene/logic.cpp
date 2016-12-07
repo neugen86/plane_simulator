@@ -1,4 +1,4 @@
-#include "director.h"
+#include "logic.h"
 
 namespace scene
 {
@@ -8,40 +8,42 @@ types::obj_id getNewId()
     return counter++;
 }
 
-Director::Director(std::size_t width, std::size_t height)
-    : m_sceneWidth(width)
+Logic::Logic(std::size_t width, std::size_t height)
+    : interface::WithGravity()
+    , interface::Controllable()
+    , m_sceneWidth(width)
     , m_sceneHeight(height)
 {
 }
 
-const std::list<ObjectPtr>& Director::snapshot() const
-{
-    return m_snapshot;
-}
-
-physics::Gravity::Type Director::gravityType() const
+physics::Gravity::Type Logic::gravityType() const
 {
     return m_gravity.type();
 }
 
-void Director::setGravityType(physics::Gravity::Type type)
+void Logic::setGravityType(physics::Gravity::Type type)
 {
     if (m_gravity.type() != type)
         m_gravity = physics::Gravity(type);
 }
 
-void Director::grabObject(types::obj_id id, const physics::Point& position)
+void Logic::grabObject(types::obj_id id, const physics::Point& position)
 {
     m_grabbed = GrabbedObject(id, position);
 }
 
-void Director::releaseObject(types::obj_id id)
+void Logic::releaseObject(types::obj_id id)
 {
     if (m_grabbed.id() == id)
         m_grabbed = GrabbedObject();
 }
 
-void Director::remove(const std::set<types::obj_id>& list)
+const std::list<ObjectPtr>& Logic::snapshot() const
+{
+    return m_snapshot;
+}
+
+void Logic::remove(const std::set<types::obj_id>& list)
 {
     for (auto i = m_particles.begin(); i != m_particles.end(); ++i)
     {
@@ -50,7 +52,7 @@ void Director::remove(const std::set<types::obj_id>& list)
     }
 }
 
-void Director::insert(const std::list<physics::Object>& list)
+void Logic::insert(const std::list<physics::Object>& list)
 {
     for (auto i = list.begin(); i != list.end(); ++i)
     {
@@ -77,7 +79,7 @@ void Director::insert(const std::list<physics::Object>& list)
     }
 }
 
-void Director::gravitate()
+void Logic::gravitate()
 {
     types::value_t gravityValue;
 
@@ -102,7 +104,7 @@ void Director::gravitate()
     }
 }
 
-void Director::move(bool withSnapshot)
+void Logic::move(bool withSnapshot)
 {
     if (withSnapshot)
         m_snapshot.clear();
@@ -122,7 +124,7 @@ void Director::move(bool withSnapshot)
     }
 }
 
-bool Director::grabbed(types::value_t id)
+bool Logic::grabbed(types::value_t id)
 {
     if (m_grabbed.off())
         return false;
@@ -130,7 +132,7 @@ bool Director::grabbed(types::value_t id)
     return m_grabbed.id() == id;
 }
 
-void Director::processWalls(physics::Particle& particle)
+void Logic::processWalls(physics::Particle& particle)
 {
     const types::value_t radius = particle.radius();
     const physics::Point& position = particle.position();
@@ -152,7 +154,7 @@ void Director::processWalls(physics::Particle& particle)
  * Implemented in accordance with the article https://en.wikipedia.org/wiki/Elastic_collision
  * Paragraph "Two-dimensional collision with two moving objects"
  */
-void Director::collide(physics::Particle& current, physics::Particle& other)
+void Logic::collide(physics::Particle& current, physics::Particle& other)
 {
     if (!physics::crossing(current, other))
         return;
@@ -183,7 +185,7 @@ void Director::collide(physics::Particle& current, physics::Particle& other)
     other.setVelocity(v2_new);
 }
 
-void Director::saveState(physics::Particle& particle, bool withSnapshot)
+void Logic::saveState(physics::Particle& particle, bool withSnapshot)
 {
     if (grabbed(particle.id()))
     {

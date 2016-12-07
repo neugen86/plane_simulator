@@ -1,5 +1,5 @@
-#ifndef ITERATIVE_H
-#define ITERATIVE_H
+#ifndef PLAYABLE_H
+#define PLAYABLE_H
 
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
@@ -10,9 +10,9 @@
 
 namespace scene
 {
-namespace utils
+namespace interface
 {
-class Iterative
+class Playable
         : private boost::noncopyable
 {
     bool m_paused;
@@ -27,8 +27,8 @@ class Iterative
     boost::shared_ptr<boost::thread> m_pThread;
 
 public:
-    Iterative();
-    virtual ~Iterative();
+    Playable();
+    virtual ~Playable();
 
     bool start();
     bool pause();
@@ -38,10 +38,10 @@ private:
     void loop();
 
 private:
-    virtual void iterate() = 0;
+    virtual void play() = 0;
 
 };
-} // namespace utils
+} // namespace interface
 } // namespace scene
 
-#endif // ITERATIVE_H
+#endif // PLAYABLE_H

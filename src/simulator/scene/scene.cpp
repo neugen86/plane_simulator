@@ -2,32 +2,35 @@
 
 namespace scene
 {
-const std::size_t Settings::DefaultWidth(100);
-const std::size_t Settings::DefaultHeight(30);
-const types::duration_t Settings::DefaultTimeout(50);
+const std::size_t Scene::DefaultWidth(100);
+const std::size_t Scene::DefaultHeight(30);
 
-Scene::Scene(const Settings& settings)
-    : utils::Iterative()
+Scene::Scene(std::size_t width, std::size_t height)
+    : interface::Periodic()
+    , interface::Playable()
+    , interface::WithGravity()
+    , interface::ControllableContainer()
     , interchange::Broadcaster()
-    , m_director(settings.width(), settings.height())
-    , m_settings(settings)
+    , m_logic(width, height)
+    , m_width(width)
+    , m_height(height)
     , m_grabLock()
     , m_insertLock()
-    ,m_removeLock()
+    , m_removeLock()
     , m_gravityLock()
 {
 }
 
-physics::Gravity::Type Scene::gravityType()
+physics::Gravity::Type Scene::gravityType() const
 {
     concurrent::guard guard(m_gravityLock);
-    return m_director.gravityType();
+    return m_logic.gravityType();
 }
 
 void Scene::setGravityType(physics::Gravity::Type type)
 {
     concurrent::guard guard(m_gravityLock);
-    m_director.setGravityType(type);
+    m_logic.setGravityType(type);
 }
 
 void Scene::insertObject(const physics::Object& object)
@@ -45,41 +48,46 @@ void Scene::removeObject(types::obj_id id)
 void Scene::grabObject(types::obj_id id, const physics::Point& position)
 {
     concurrent::guard guard(m_grabLock);
-    m_director.grabObject(id, position);
+    m_logic.grabObject(id, position);
 }
 
 void Scene::releaseObject(types::obj_id id)
 {
     concurrent::guard guard(m_grabLock);
-    m_director.releaseObject(id);
-}
-
-void Scene::iterate()
-{
-    remove();
-    insert();
-
-    const bool withSnapshot =
-            haveSubscriptions();
-
-    m_director.gravitate();
-    m_director.move(withSnapshot);
-
-    if (withSnapshot)
-        feed(m_director.snapshot());
+    m_logic.releaseObject(id);
 }
 
 void Scene::remove()
 {
     concurrent::guard guard(m_removeLock);
-    m_director.remove(m_removeList);
+    m_logic.remove(m_removeList);
     m_removeList.clear();
 }
 
 void Scene::insert()
 {
     concurrent::guard guard(m_insertLock);
-    m_director.insert(m_insertList);
+    m_logic.insert(m_insertList);
     m_insertList.clear();
+}
+
+bool Scene::needSnapshot() const
+{
+    const bool isOver = expired();
+    return isOver ? haveSubscriptions() : false;
+}
+
+void Scene::play()
+{
+    remove();
+    insert();
+
+    const bool withSnaphot = needSnapshot();
+
+    m_logic.gravitate();
+    m_logic.move(withSnaphot);
+
+    if (withSnaphot)
+        feed(m_logic.snapshot());
 }
 } // namespace scene

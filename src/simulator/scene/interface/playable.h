@@ -21,8 +21,8 @@ class Playable
 
     concurrent::event m_resumeEvent;
 
-    concurrent::spinlock m_lock;
-    concurrent::spinlock m_finishLock;
+    mutable concurrent::spinlock m_lock;
+    mutable concurrent::spinlock m_finishLock;
 
     boost::shared_ptr<boost::thread> m_pThread;
 
@@ -35,6 +35,7 @@ public:
     bool stop();
 
 private:
+    bool finished() const;
     void loop();
 
 private:

@@ -12,7 +12,8 @@ class Point
 
 public:
     explicit Point(types::value_t x = constants::Zero,
-                   types::value_t y = constants::Zero);
+                   types::value_t y = constants::Zero)
+        : m_x(x), m_y(y) {}
 
     types::value_t x() const { return m_x; }
     types::value_t y() const { return m_y; }

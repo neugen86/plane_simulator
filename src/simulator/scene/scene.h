@@ -4,7 +4,7 @@
 #include "logic.h"
 #include "interface/periodic.h"
 #include "interface/playable.h"
-#include "interface/controllable_container.h"
+#include "interface/container.h"
 #include "interchange/broadcaster.h"
 
 namespace scene
@@ -12,17 +12,12 @@ namespace scene
 class Scene
         : public interface::Periodic
         , public interface::Playable
+        , public interface::Controllable
+        , public interface::Container
         , public interface::WithGravity
-        , public interface::ControllableContainer
         , public interchange::Broadcaster
 {
-    static const std::size_t DefaultWidth;
-    static const std::size_t DefaultHeight;
-
     Logic m_logic;
-
-    const std::size_t m_width;
-    const std::size_t m_height;
 
     concurrent::spinlock m_grabLock;
     concurrent::spinlock m_insertLock;
@@ -31,6 +26,9 @@ class Scene
 
     std::set<types::obj_id> m_removeList;
     std::list<physics::Object> m_insertList;
+
+    static const std::size_t DefaultWidth;
+    static const std::size_t DefaultHeight;
 
 public:
     explicit Scene(std::size_t width = DefaultWidth,
@@ -44,9 +42,6 @@ public:
 
     void grabObject(types::obj_id id, const physics::Point& position);
     void releaseObject(types::obj_id id);
-
-    std::size_t width() { return m_width; }
-    std::size_t height() { return m_height; }
 
 private:
     void remove();

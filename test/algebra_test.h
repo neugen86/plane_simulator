@@ -10,7 +10,7 @@ TEST(PointTest, creation)
 {
     {
         const types::value_t v = constants::NegativeUnit;
-        ASSERT_THROW(Point(v, v), std::invalid_argument);
+        ASSERT_NO_THROW(Point(v, v));
     }
     {
         const types::value_t v = constants::PositiveUnit;

@@ -4,8 +4,7 @@ namespace scene
 {
 namespace interface
 {
-using namespace boost::chrono;
-typedef high_resolution_clock clock_t;
+typedef boost::chrono::high_resolution_clock clock_t;
 
 const types::duration_t Periodic::DefaultDuration(50);
 
@@ -20,7 +19,7 @@ Periodic::Periodic(types::duration_t duration)
 void Periodic::setDuration(types::duration_t duration)
 {
     concurrent::guard guard(m_lock);
-    m_duration = milliseconds(duration);
+    m_duration = boost::chrono::milliseconds(duration);
 }
 
 types::duration_t Periodic::trueDuration() const
@@ -37,11 +36,12 @@ types::duration_t Periodic::duration() const
 
 bool Periodic::expired() const
 {
-    static clock_t::time_point now = clock_t::now();
+    using namespace boost::chrono;
+
+    const clock_t::time_point now = clock_t::now();
 
     const milliseconds spent =
             duration_cast<milliseconds>(now - m_then);
-
     {
         concurrent::guard guard(m_lock);
         if (m_duration > spent) return false;

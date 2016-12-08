@@ -26,7 +26,7 @@ bool Playable::start()
 
     if (m_paused)
     {
-        m_resumeEvent.reset();
+        m_resumeEvent.set();
         m_paused = false;
         return true;
     }
@@ -44,6 +44,7 @@ bool Playable::start()
         }
 
         m_pThread.reset(new boost::thread(&Playable::loop, this));
+        m_resumeEvent.set();
     }
     catch (...)
     {
@@ -61,7 +62,7 @@ bool Playable::pause()
     if (m_stopped || m_paused)
         return false;
 
-    m_resumeEvent.set();
+    m_resumeEvent.reset();
     m_paused = true;
 
     return true;
@@ -80,7 +81,7 @@ bool Playable::stop()
     }
 
     if (m_paused)
-        m_resumeEvent.reset();
+        m_resumeEvent.set();
 
     m_pThread->join();
     m_pThread.reset();
@@ -90,10 +91,21 @@ bool Playable::stop()
     return true;
 }
 
+bool Playable::finished() const
+{
+    concurrent::guard guard(m_finishLock);
+    return m_finishFlag;
+}
+
 void Playable::loop()
 {
     for (;;)
     {
+        m_resumeEvent.wait();
+
+        if (finished())
+            break;
+
         try
         {
             play();
@@ -101,15 +113,8 @@ void Playable::loop()
         catch (...)
         {
             stop();
-            return;
+            break;
         }
-
-        {
-            concurrent::guard guard(m_finishLock);
-            if (m_finishFlag) return;
-        }
-
-        m_resumeEvent.wait();
     }
 }
 } // namespace interface

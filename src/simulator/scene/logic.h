@@ -65,7 +65,7 @@ private:
     bool grabbed(types::value_t id);
     void processWalls(physics::Particle& particle);
     void collide(physics::Particle& current, physics::Particle& other);
-    void saveState(physics::Particle& particle, bool withSnapshot);
+    void update(physics::Particle& particle, bool withSnapshot);
 
 };
 } // namespace scene

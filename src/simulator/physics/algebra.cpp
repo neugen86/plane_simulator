@@ -8,13 +8,6 @@ namespace physics
 {
 static const types::value_t Epsilon(std::numeric_limits<types::value_t>::epsilon());
 
-Point::Point(types::value_t x, types::value_t y)
-    : m_x(x), m_y(y)
-{
-    if (m_x < constants::Zero || m_y < constants::Zero)
-        throw std::invalid_argument("Attempt to create object of Point with invalid arguments");
-}
-
 const Vector operator +(const Vector& lhs, const Vector& rhs)
 {
     const types::value_t rx = lhs.rx() + rhs.rx();

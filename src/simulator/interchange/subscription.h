@@ -2,8 +2,6 @@
 #define SUBSCRIPTION_H
 
 #include <list>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
 
 #include "physics/types.h"
 #include "concurrent/lock.h"
@@ -19,39 +17,38 @@ public:
     virtual ~SubscriptionBase() {}
 };
 
-class SubscriptionReader
-        : public virtual SubscriptionBase
+class SubscriptionConsumer
+        : public SubscriptionBase
 {
 public:
     virtual ObjectList get() const = 0;
-    virtual void wait() const = 0;
 };
 
-class SubscriptionWriter
-        : public virtual SubscriptionBase
+class SubscriptionProducer
+        : public SubscriptionBase
 {
 public:
     virtual void set(const ObjectList& list) = 0;
-    virtual void notify() const = 0;
 };
 
 class Subscription
-        : public SubscriptionReader
-        , public SubscriptionWriter
+        : public SubscriptionConsumer
+        , public SubscriptionProducer
 {
     ObjectList m_list;
-
     concurrent::event m_event;
-
-    mutable concurrent::spinlock m_listLock;
-    mutable concurrent::spinlock m_eventLock;
+    mutable concurrent::spinlock m_lock;
 
 public:
+    Subscription();
+    ~Subscription();
+
     void set(const ObjectList& list);
     ObjectList get() const;
 
+private:
+    void wait() const ;
     void notify() const;
-    void wait() const;
 
 };
 } // namespace interchange

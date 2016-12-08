@@ -87,8 +87,10 @@ void Logic::gravitate()
     {
         physics::Particle& current(**i);
 
-        for (auto j = ++i; j != m_particles.end(); ++j)
+        for (auto j = i; j != m_particles.end(); ++j)
         {
+            if (i == j) continue;
+
             physics::Particle& other(**j);
 
             gravityValue = m_gravity(current, other);
@@ -115,12 +117,13 @@ void Logic::move(bool withSnapshot)
 
         processWalls(current);
 
-        for (auto j = ++i; j != m_particles.end(); ++j)
+        for (auto j = i; j != m_particles.end(); ++j)
         {
+            if (i == j) continue;
             collide(current, **j);
         }
 
-        saveState(current, withSnapshot);
+        update(current, withSnapshot);
     }
 }
 
@@ -185,7 +188,7 @@ void Logic::collide(physics::Particle& current, physics::Particle& other)
     other.setVelocity(v2_new);
 }
 
-void Logic::saveState(physics::Particle& particle, bool withSnapshot)
+void Logic::update(physics::Particle& particle, bool withSnapshot)
 {
     if (grabbed(particle.id()))
     {
@@ -197,7 +200,7 @@ void Logic::saveState(physics::Particle& particle, bool withSnapshot)
         particle.move(vector.rx(), vector.ry());
     }
 
-    particle.setGravity(physics::Vector());
+    //particle.setGravity(physics::Vector());
 
     if (withSnapshot)
     {

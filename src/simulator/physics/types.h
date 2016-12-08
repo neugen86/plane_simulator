@@ -7,7 +7,7 @@ namespace types
 {
 typedef int obj_id;
 typedef float value_t;
-typedef unsigned long duration_t;
+typedef long int duration_t;
 } // namespace types
 
 namespace physics

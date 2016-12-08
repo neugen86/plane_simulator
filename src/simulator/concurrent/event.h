@@ -13,32 +13,41 @@ typedef boost::mutex::scoped_lock scoped_lock;
 class event
 {
     mutable bool m_state;
-    mutable mutex m_mutex;
     mutable condition m_condition;
+
+    mutable mutex m_stateMutex;
+    mutable mutex m_conditionMutex;
 
 public:
     explicit event(bool state = false)
         : m_state(state) {}
 
-    bool state() const { return m_state; }
+    bool state() const
+    {
+        scoped_lock lock(m_stateMutex);
+        return m_state;
+    }
 
     void set() const
     {
-        scoped_lock lock(m_mutex);
-        m_state = true;
+        {
+            scoped_lock lock(m_stateMutex);
+            m_state = true;
+        }
+
+        m_condition.notify_one();
     }
 
     void reset() const
     {
-        scoped_lock lock(m_mutex);
+        scoped_lock lock(m_stateMutex);
         m_state = false;
-        m_condition.notify_one();
     }
 
     void wait() const
     {
-        scoped_lock lock(m_mutex);
-        while(m_state) m_condition.wait(lock);
+        scoped_lock lock(m_conditionMutex);
+        while(!m_state) m_condition.wait(lock);
     }
 };
 } // namespace concurrent

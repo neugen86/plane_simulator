@@ -5,28 +5,29 @@
 
 namespace interchange
 {
-typedef boost::shared_ptr<SubscriptionReader> ReaderPtr;
+typedef boost::shared_ptr<SubscriptionConsumer> ConsumerPtr;
 
 class Broadcaster
 {
 private:
-    typedef boost::shared_ptr<SubscriptionWriter> WriterPtr;
-
     mutable concurrent::spinlock m_lock;
 
-    std::list<WriterPtr> m_subscriptions;
+    std::list<boost::shared_ptr<Subscription>> m_subscriptions;
 
 public:
     Broadcaster();
-    virtual ~Broadcaster() {}
+    virtual ~Broadcaster();
 
-    ReaderPtr subscribe();
-    void unsubscribe(const ReaderPtr& reader);
+    ConsumerPtr subscribe();
+    void unsubscribe(const ConsumerPtr& reader);
 
     bool haveSubscriptions() const;
 
 protected:
     void feed(const ObjectList& list);
+
+private:
+    void clear();
 
 };
 } // namespace interchange

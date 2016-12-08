@@ -14,7 +14,8 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp\
-    gui/mainwindow.cpp \
+    ui/mainwindow.cpp \
+    ui/interchange/subscriber.cpp \
     simulator/interchange/broadcaster.cpp \
     simulator/interchange/subscription.cpp \
     simulator/physics/algebra.cpp \
@@ -26,7 +27,8 @@ SOURCES += \
 
 
 HEADERS  += \
-    gui/mainwindow.h \
+    ui/mainwindow.h \
+    ui/interchange/subscriber.h \
     simulator/concurrent/event.h \
     simulator/concurrent/lock.h \
     simulator/interchange/broadcaster.h \
@@ -44,11 +46,11 @@ HEADERS  += \
     simulator/scene/scene.h
 
 FORMS    += \
-    gui/mainwindow.ui
+    ui/mainwindow.ui
 
 INCLUDEPATH += \
     simulator \
-    gui
+    ui
 
 LIBS    += \
     -lboost_system \

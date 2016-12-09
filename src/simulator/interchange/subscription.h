@@ -43,8 +43,8 @@ public:
     Subscription();
     ~Subscription();
 
-    void set(const ObjectList& list);
     ObjectList get() const;
+    void set(const ObjectList& list);
 
 private:
     void wait() const ;

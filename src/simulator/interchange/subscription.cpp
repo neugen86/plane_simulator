@@ -14,18 +14,23 @@ Subscription::~Subscription()
     m_event.reset();
 }
 
-void Subscription::set(const ObjectList& list)
-{
-    concurrent::guard guard(m_lock);
-    m_list = list;
-    notify();
-}
-
 ObjectList Subscription::get() const
 {
     wait();
+
     concurrent::guard guard(m_lock);
     return m_list;
+}
+
+void Subscription::set(const ObjectList& list)
+{
+    if (!m_lock.try_lock())
+        return;
+
+    m_list = list;
+    m_lock.unlock();
+
+    notify();
 }
 
 void Subscription::wait() const

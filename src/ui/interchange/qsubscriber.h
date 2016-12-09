@@ -1,5 +1,5 @@
-#ifndef SUBSCRIBER_H
-#define SUBSCRIBER_H
+#ifndef QSUBSCRIBER_H
+#define QSUBSCRIBER_H
 
 #include <QObject>
 #include <QThread>
@@ -19,7 +19,7 @@ public:
     virtual void setData(const interchange::ObjectList& list) = 0;
 };
 
-class ThreadWorker
+class QThreadWorker
         : public QThread
 {
     Q_OBJECT
@@ -31,15 +31,15 @@ class ThreadWorker
     DataCallback& m_callback;
 
 public:
-    explicit ThreadWorker(const interchange::ConsumerPtr& consumer,
-                          DataCallback& callback);
+    explicit QThreadWorker(const interchange::ConsumerPtr& consumer,
+                           DataCallback& callback);
 
     void run();
     void stop();
 
 };
 
-class Subscriber
+class QSubscriber
         : public QObject
         , private DataCallback
 {
@@ -54,11 +54,11 @@ class Subscriber
     const QBroadcasterPtr m_pBroadcaster;
     interchange::ConsumerPtr m_pConsumer;
 
-    QSharedPointer<ThreadWorker> m_pWorker;
+    QSharedPointer<QThreadWorker> m_pWorker;
 
 public:
-    explicit Subscriber(const QBroadcasterPtr& pBroadcaster);
-    ~Subscriber();
+    explicit QSubscriber(const QBroadcasterPtr& pBroadcaster);
+    ~QSubscriber();
 
     interchange::ObjectList data() const;
     void setData(const interchange::ObjectList& data);
@@ -76,4 +76,4 @@ signals:
 };
 } // namespace interchange
 
-#endif // SUBSCRIBER_H
+#endif // QSUBSCRIBER_H

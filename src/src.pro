@@ -16,7 +16,7 @@ SOURCES += \
     main.cpp\
     ui/mainwindow.cpp \
     ui/controller/qpaintcontroller.cpp \
-    ui/interchange/subscriber.cpp \
+    ui/interchange/qsubscriber.cpp \
     ui/widget/qsimulatorwidget.cpp \
     simulator/interchange/broadcaster.cpp \
     simulator/interchange/subscription.cpp \
@@ -30,7 +30,7 @@ SOURCES += \
 HEADERS  += \
     ui/mainwindow.h \
     ui/controller/qpaintcontroller.h \
-    ui/interchange/subscriber.h \
+    ui/interchange/qsubscriber.h \
     ui/widget/qsimulatorwidget.h \
     simulator/concurrent/event.h \
     simulator/concurrent/lock.h \

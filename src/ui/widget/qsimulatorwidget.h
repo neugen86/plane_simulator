@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "interchange/subscriber.h"
+#include "interchange/qsubscriber.h"
 #include "interchange/broadcaster.h"
 #include "scene/interface/container.h"
 #include "ui/controller/qpaintcontroller.h"
@@ -17,7 +17,7 @@ class QSimulatorWidget
 {
     Q_OBJECT
 
-    interchange::Subscriber m_subscriber;
+    interchange::QSubscriber m_subscriber;
     controller::QPaintController m_controller;
 
 public:

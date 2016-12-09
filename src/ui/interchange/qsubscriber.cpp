@@ -1,4 +1,4 @@
-#include "subscriber.h"
+#include "qsubscriber.h"
 
 #include <QDebug>
 #include <QMutexLocker>
@@ -7,7 +7,7 @@
 
 namespace interchange
 {
-ThreadWorker::ThreadWorker(const interchange::ConsumerPtr& consumer, DataCallback& callback)
+QThreadWorker::QThreadWorker(const interchange::ConsumerPtr& consumer, DataCallback& callback)
     : QThread()
     , m_stopped(false)
     , m_lock()
@@ -16,7 +16,7 @@ ThreadWorker::ThreadWorker(const interchange::ConsumerPtr& consumer, DataCallbac
 {
 }
 
-void ThreadWorker::run()
+void QThreadWorker::run()
 {
     for (;;)
     {
@@ -29,13 +29,13 @@ void ThreadWorker::run()
     }
 }
 
-void ThreadWorker::stop()
+void QThreadWorker::stop()
 {
     concurrent::guard guard(m_lock);
     m_stopped = true;
 }
 
-Subscriber::Subscriber(const QBroadcasterPtr& pBroadcaster)
+QSubscriber::QSubscriber(const QBroadcasterPtr& pBroadcaster)
     : QObject()
     , DataCallback()
     , m_active(false)
@@ -45,18 +45,18 @@ Subscriber::Subscriber(const QBroadcasterPtr& pBroadcaster)
 {
 }
 
-Subscriber::~Subscriber()
+QSubscriber::~QSubscriber()
 {
     deactivate();
 }
 
-interchange::ObjectList Subscriber::data() const
+interchange::ObjectList QSubscriber::data() const
 {
     concurrent::guard guard(m_lock);
     return m_data;
 }
 
-void Subscriber::setData(const interchange::ObjectList& data)
+void QSubscriber::setData(const interchange::ObjectList& data)
 {
     for (const physics::ObjectPtr& pObj : data)
     {
@@ -76,7 +76,7 @@ void Subscriber::setData(const interchange::ObjectList& data)
     emit updated();
 }
 
-bool Subscriber::activate()
+bool QSubscriber::activate()
 {
     if (m_active)
         return false;
@@ -93,7 +93,7 @@ bool Subscriber::activate()
     return true;
 }
 
-bool Subscriber::deactivate()
+bool QSubscriber::deactivate()
 {
     if (!m_active)
         return false;
@@ -108,15 +108,15 @@ bool Subscriber::deactivate()
     return true;
 }
 
-void Subscriber::startThread()
+void QSubscriber::startThread()
 {
     static DataCallback& callback = static_cast<DataCallback&>(*this);
 
-    m_pWorker = QSharedPointer<ThreadWorker>(new ThreadWorker(m_pConsumer, callback));
+    m_pWorker = QSharedPointer<QThreadWorker>(new QThreadWorker(m_pConsumer, callback));
     m_pWorker->start();
 }
 
-void Subscriber::stopThread()
+void QSubscriber::stopThread()
 {
     m_pWorker->stop();
     m_pWorker->wait();

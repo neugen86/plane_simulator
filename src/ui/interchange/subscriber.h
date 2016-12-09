@@ -1,17 +1,17 @@
-#ifndef FUF_H
-#define FUF_H
+#ifndef SUBSCRIBER_H
+#define SUBSCRIBER_H
 
 #include <QObject>
-#include <QMutex>
 #include <QThread>
 #include <QSharedPointer>
 
+#include "concurrent/lock.h"
 #include "interchange/broadcaster.h"
+
+typedef QSharedPointer<interchange::Broadcaster> QBroadcasterPtr;
 
 namespace interchange
 {
-typedef QSharedPointer<interchange::Broadcaster> QBroadcasterPtr;
-
 class DataCallback
 {
 public:
@@ -24,8 +24,8 @@ class ThreadWorker
 {
     Q_OBJECT
 
-    QMutex m_lock;
     bool m_stopped;
+    concurrent::spinlock m_lock;
 
     const interchange::ConsumerPtr m_pConsumer;
     DataCallback& m_callback;
@@ -47,9 +47,9 @@ class Subscriber
 
     bool m_active;
 
-    mutable QMutex m_lock;
-
     interchange::ObjectList m_data;
+
+    mutable concurrent::spinlock m_lock;
 
     const QBroadcasterPtr m_pBroadcaster;
     interchange::ConsumerPtr m_pConsumer;
@@ -76,4 +76,4 @@ signals:
 };
 } // namespace interchange
 
-#endif // FUF_H
+#endif // SUBSCRIBER_H

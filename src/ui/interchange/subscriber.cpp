@@ -10,6 +10,7 @@ namespace interchange
 ThreadWorker::ThreadWorker(const interchange::ConsumerPtr& consumer, DataCallback& callback)
     : QThread()
     , m_stopped(false)
+    , m_lock()
     , m_pConsumer(consumer)
     , m_callback(callback)
 {
@@ -20,7 +21,7 @@ void ThreadWorker::run()
     for (;;)
     {
         {
-            QMutexLocker guard(&m_lock);
+            concurrent::guard guard(m_lock);
             if (m_stopped) break;
         }
 
@@ -30,7 +31,7 @@ void ThreadWorker::run()
 
 void ThreadWorker::stop()
 {
-    QMutexLocker guard(&m_lock);
+    concurrent::guard guard(m_lock);
     m_stopped = true;
 }
 
@@ -38,6 +39,7 @@ Subscriber::Subscriber(const QBroadcasterPtr& pBroadcaster)
     : QObject()
     , DataCallback()
     , m_active(false)
+    , m_lock()
     , m_pBroadcaster(pBroadcaster)
     , m_pWorker(nullptr)
 {
@@ -50,7 +52,7 @@ Subscriber::~Subscriber()
 
 interchange::ObjectList Subscriber::data() const
 {
-    QMutexLocker guard(&m_lock);
+    concurrent::guard guard(m_lock);
     return m_data;
 }
 
@@ -67,7 +69,7 @@ void Subscriber::setData(const interchange::ObjectList& data)
     }
 
     {
-        QMutexLocker guard(&m_lock);
+        concurrent::guard guard(m_lock);
         m_data = data;
     }
 

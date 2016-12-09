@@ -9,18 +9,23 @@
 
 namespace scene
 {
+typedef physics::Gravity::Type GravityType;
 typedef boost::shared_ptr<physics::Object> ObjectPtr;
 
 class Logic
         : public interface::WithGravity
         , public interface::Controllable
 {
+public:
+
+    static const GravityType DefaultGravityType;
+
     typedef boost::shared_ptr<physics::Particle> ParticlePtr;
 
-    std::size_t m_sceneWidth;
-    std::size_t m_sceneHeight;
+    types::value_t m_sceneWidth;
+    types::value_t m_sceneHeight;
 
-    physics::Gravity m_gravity;
+    GravityType m_gravityType;
 
     std::list<ObjectPtr> m_snapshot;
     std::list<ParticlePtr> m_particles;
@@ -46,10 +51,11 @@ class Logic
     } m_grabbed;
 
 public:
-    explicit Logic(std::size_t width, std::size_t height);
+    Logic(types::value_t width, types::value_t height,
+          GravityType gravityType = DefaultGravityType);
 
-    physics::Gravity::Type gravityType() const;
-    void setGravityType(physics::Gravity::Type type);
+    GravityType gravityType() const;
+    void setGravityType(GravityType type);
 
     void grabObject(types::obj_id id, const physics::Point& position);
     void releaseObject(types::obj_id id);

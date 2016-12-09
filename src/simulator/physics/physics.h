@@ -82,7 +82,7 @@ private:
 
 public:
     explicit Gravity(Type type = Type::Simple) : m_type(type) {}
-    types::value_t operator()(const Object& lhs, const Object& rhs);
+    types::value_t operator()(const Object& lhs, const Object& rhs) const;
     Type type() const { return m_type; }
 };
 

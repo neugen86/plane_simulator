@@ -48,7 +48,7 @@ types::value_t simpeGravity(const Object& lhs, const Object& rhs)
     return constants::Zero;
 }
 
-types::value_t Gravity::operator()(const Object& lhs, const Object& rhs)
+types::value_t Gravity::operator()(const Object& lhs, const Object& rhs) const
 {
     switch (m_type)
     {

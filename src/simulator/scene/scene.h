@@ -27,12 +27,12 @@ class Scene
     std::set<types::obj_id> m_removeList;
     std::list<physics::Object> m_insertList;
 
-    static const std::size_t DefaultWidth;
-    static const std::size_t DefaultHeight;
+    static const types::value_t DefaultWidth;
+    static const types::value_t DefaultHeight;
 
 public:
-    explicit Scene(std::size_t width = DefaultWidth,
-                   std::size_t height = DefaultHeight);
+    explicit Scene(types::value_t width = DefaultWidth,
+                   types::value_t height = DefaultHeight);
 
     physics::Gravity::Type gravityType() const;
     void setGravityType(physics::Gravity::Type type);

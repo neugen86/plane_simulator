@@ -2,10 +2,10 @@
 
 namespace scene
 {
-const std::size_t Scene::DefaultWidth(100);
-const std::size_t Scene::DefaultHeight(30);
+const types::value_t Scene::DefaultWidth(1024.);
+const types::value_t Scene::DefaultHeight(768.);
 
-Scene::Scene(std::size_t width, std::size_t height)
+Scene::Scene(types::value_t width, types::value_t height)
     : interface::Periodic()
     , interface::Playable()
     , interface::Controllable()

@@ -8,23 +8,25 @@ types::obj_id getNewId()
     return counter++;
 }
 
-Logic::Logic(std::size_t width, std::size_t height)
+const physics::Gravity::Type Logic::DefaultGravityType(physics::Gravity::Type::Simple);
+
+Logic::Logic(types::value_t width, types::value_t height, GravityType gravityType)
     : interface::WithGravity()
     , interface::Controllable()
     , m_sceneWidth(width)
     , m_sceneHeight(height)
+    , m_gravityType(gravityType)
 {
 }
 
-physics::Gravity::Type Logic::gravityType() const
+GravityType Logic::gravityType() const
 {
-    return m_gravity.type();
+    return m_gravityType;
 }
 
-void Logic::setGravityType(physics::Gravity::Type type)
+void Logic::setGravityType(GravityType type)
 {
-    if (m_gravity.type() != type)
-        m_gravity = physics::Gravity(type);
+    m_gravityType = type;
 }
 
 void Logic::grabObject(types::obj_id id, const physics::Point& position)
@@ -81,19 +83,17 @@ void Logic::insert(const std::list<physics::Object>& list)
 
 void Logic::gravitate()
 {
-    types::value_t gravityValue;
+    const physics::Gravity gravity(m_gravityType);
 
     for (auto i = m_particles.begin(); i != m_particles.end(); ++i)
     {
         physics::Particle& current(**i);
 
-        for (auto j = i; j != m_particles.end(); ++j)
+        for (auto j = --m_particles.end(); j != i; --j)
         {
-            if (i == j) continue;
-
             physics::Particle& other(**j);
 
-            gravityValue = m_gravity(current, other);
+            const types::value_t gravityValue = gravity(current, other);
 
             const physics::Vector vCurrent(current.position(), other.position());
             const physics::Vector vOther = physics::turn(vCurrent);
@@ -117,9 +117,8 @@ void Logic::move(bool withSnapshot)
 
         processWalls(current);
 
-        for (auto j = i; j != m_particles.end(); ++j)
+        for (auto j = --m_particles.end(); j != i; --j)
         {
-            if (i == j) continue;
             collide(current, **j);
         }
 

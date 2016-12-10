@@ -10,15 +10,17 @@ typedef boost::shared_ptr<SubscriptionConsumer> ConsumerPtr;
 class Broadcaster
 {
 private:
+    typedef boost::shared_ptr<Subscription> SubscriptionPtr;
+
     mutable concurrent::spinlock m_lock;
 
-    std::list<boost::shared_ptr<Subscription>> m_subscriptions;
+    std::list<SubscriptionPtr> m_subscriptions;
 
 public:
     Broadcaster();
     virtual ~Broadcaster();
 
-    ConsumerPtr subscribe();
+    ConsumerPtr subscribe(types::duration_t duration = Subscription::DefaultDuration);
     void unsubscribe(const ConsumerPtr& reader);
 
     bool haveSubscriptions() const;

@@ -58,16 +58,6 @@ interchange::ObjectList QSubscriber::data() const
 
 void QSubscriber::setData(const interchange::ObjectList& data)
 {
-    for (const physics::ObjectPtr& pObj : data)
-    {
-        if (pObj->id() == 0)
-        {
-            qDebug() << "id =" << pObj->id() << "\tpos = ("
-                     << pObj->position().x() << ","
-                     << pObj->position().y() << ")";
-        }
-    }
-
     {
         concurrent::guard guard(m_lock);
         m_data = data;

@@ -2,10 +2,17 @@
 
 namespace interchange
 {
-Subscription::Subscription()
+typedef boost::chrono::high_resolution_clock clock_t;
+
+const types::duration_t Subscription::DefaultDuration(0);
+
+Subscription::Subscription(types::duration_t duration)
     : SubscriptionConsumer()
     , SubscriptionProducer()
-    , m_lock()
+    , m_duration(duration)
+    , m_dataLock()
+    , m_durationLock()
+    , m_then(clock_t::now())
 {
 }
 
@@ -14,23 +21,60 @@ Subscription::~Subscription()
     m_event.reset();
 }
 
-ObjectList Subscription::get() const
+void Subscription::setDuration(types::duration_t duration)
 {
-    wait();
+    concurrent::guard guard(m_durationLock);
+    m_duration = boost::chrono::milliseconds(duration);
+}
 
-    concurrent::guard guard(m_lock);
-    return m_list;
+types::duration_t Subscription::duration() const
+{
+    concurrent::guard guard(m_durationLock);
+    return m_duration.count();
 }
 
 void Subscription::set(const ObjectList& list)
 {
-    if (!m_lock.try_lock())
+    if (!m_dataLock.try_lock())
         return;
 
     m_list = list;
-    m_lock.unlock();
+    m_dataLock.unlock();
 
     notify();
+}
+
+ObjectList Subscription::get() const
+{
+    wait();
+
+    concurrent::guard guard(m_dataLock);
+    return m_list;
+}
+
+bool Subscription::expired() const
+{
+    using namespace boost::chrono;
+
+    {
+        concurrent::guard guard(m_durationLock);
+        if (m_duration.count() <= 0)
+            return true;
+    }
+
+    const clock_t::time_point now = clock_t::now();
+
+    const milliseconds spent =
+            duration_cast<milliseconds>(now - m_then);
+    {
+        concurrent::guard guard(m_durationLock);
+        if (m_duration > spent)
+            return false;
+    }
+
+    m_then = now;
+
+    return true;
 }
 
 void Subscription::wait() const

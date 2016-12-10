@@ -38,11 +38,11 @@ public:
 
     public:
         GrabbedObject()
-            : m_off(false) {}
+            : m_off(true) {}
 
         GrabbedObject(types::obj_id id,
                       const algebra::Point& position)
-            : m_off(true) , m_id(id) , m_position(position) {}
+            : m_off(false) , m_id(id) , m_position(position) {}
 
         bool off() const { return m_off; }
         types::obj_id id() const { return m_id; }

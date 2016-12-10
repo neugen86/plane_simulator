@@ -199,8 +199,6 @@ void Logic::update(physics::Particle& particle, bool withSnapshot)
         particle.move(vector.rx(), vector.ry());
     }
 
-    //particle.setGravity(algebra::Vector());
-
     if (withSnapshot)
     {
         const ObjectPtr pObject(new physics::Object(particle));

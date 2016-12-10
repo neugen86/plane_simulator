@@ -3,7 +3,7 @@
 
 #include "constants.h"
 
-namespace physics
+namespace algebra
 {
 class Point
 {
@@ -11,8 +11,8 @@ class Point
     types::value_t m_y;
 
 public:
-    explicit Point(types::value_t x = constants::Zero,
-                   types::value_t y = constants::Zero)
+    explicit Point(types::value_t x = physics::constants::Zero,
+                   types::value_t y = physics::constants::Zero)
         : m_x(x), m_y(y) {}
 
     types::value_t x() const { return m_x; }
@@ -31,11 +31,11 @@ public:
     explicit Vector(const Point& point)
         : m_rx(point.x()), m_ry(point.y()) {}
 
-    explicit Vector(types::value_t rx = constants::Zero,
-                    types::value_t ry = constants::Zero)
+    explicit Vector(types::value_t rx = physics::constants::Zero,
+                    types::value_t ry = physics::constants::Zero)
         : m_rx(rx), m_ry(ry) {}
 
-    explicit Vector(const Point& from, const Point& to)
+    Vector(const Point& from, const Point& to)
         : m_rx(to.x() - from.x()), m_ry(to.y() - from.y()) {}
 
     types::value_t rx() const { return m_rx; }
@@ -44,29 +44,28 @@ public:
     void setRx(types::value_t rx) { m_rx = rx; }
     void setRy(types::value_t ry) { m_ry = ry; }
 };
+} // namespace algebra
 
-const Vector operator +(const Vector& lhs, const Vector& rhs);
-const Vector operator -(const Vector& lhs, const Vector& rhs);
-const Vector operator +=(Vector& lhs, const Vector& rhs);
-const Vector operator -=(Vector& lhs, const Vector& rhs);
-const Vector operator *(const Vector& vector, types::value_t scalar);
-const Vector operator *(types::value_t scalar, const Vector& vector);
-const Vector operator *(const Vector& lhs, const Vector& rhs);
-const Vector operator /(const Vector& vector, types::value_t scalar);
-const Vector operator *=(Vector& lhs, types::value_t scalar);
-const Vector operator *=(Vector& lhs, const Vector& rhs);
+const algebra::Vector operator+(const algebra::Vector& lhs, const algebra::Vector& rhs);
+const algebra::Vector operator-(const algebra::Vector& lhs, const algebra::Vector& rhs);
+const algebra::Vector operator+=(algebra::Vector& lhs, const algebra::Vector& rhs);
+const algebra::Vector operator-=(algebra::Vector& lhs, const algebra::Vector& rhs);
+const algebra::Vector operator*(const algebra::Vector& vector, types::value_t scalar);
+const algebra::Vector operator*(types::value_t scalar, const algebra::Vector& vector);
+const algebra::Vector operator*(const algebra::Vector& lhs, const algebra::Vector& rhs);
+const algebra::Vector operator/(const algebra::Vector& vector, types::value_t scalar);
+const algebra::Vector operator*=(algebra::Vector& lhs, types::value_t scalar);
+const algebra::Vector operator*=(algebra::Vector& lhs, const algebra::Vector& rhs);
 
-const Vector flipHorizontal(const Vector& vector);
-const Vector flipVertical(const Vector& vector);
-const Vector normalize(const Vector& vector);
-const Vector turn(const Vector& vector);
+const algebra::Vector flipHorizontal(const algebra::Vector& vector);
+const algebra::Vector flipVertical(const algebra::Vector& vector);
+const algebra::Vector normalize(const algebra::Vector& vector);
+const algebra::Vector turn(const algebra::Vector& vector);
 
-types::value_t distance(const Point& lhs, const Point& rhs);
-types::value_t length(const Vector& vector);
+types::value_t distance(const algebra::Point& lhs, const algebra::Point& rhs);
+types::value_t length(const algebra::Vector& vector);
 
 bool same(types::value_t lhs, types::value_t rhs);
 bool less(types::value_t lhs, types::value_t rhs);
-
-} // namespace algebra
 
 #endif // ALGEBRA_H

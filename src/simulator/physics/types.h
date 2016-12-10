@@ -6,7 +6,7 @@
 namespace types
 {
 typedef int obj_id;
-typedef float value_t;
+typedef double value_t;
 typedef long int duration_t;
 } // namespace types
 

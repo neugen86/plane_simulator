@@ -4,16 +4,16 @@
 #include <stdexcept>
 #include <physics/algebra.h>
 
-using namespace physics;
+using namespace algebra;
 
 TEST(PointTest, creation)
 {
     {
-        const types::value_t v = constants::NegativeUnit;
+        const types::value_t v = physics::constants::NegativeUnit;
         ASSERT_NO_THROW(Point(v, v));
     }
     {
-        const types::value_t v = constants::PositiveUnit;
+        const types::value_t v = physics::constants::PositiveUnit;
         ASSERT_NO_THROW(Point(v, v));
     }
 }
@@ -58,7 +58,7 @@ TEST(VectorTest, multiplication)
 TEST(VectorTest, normalize)
 {
     const types::value_t l = length(normalize(Vector(3., 4.)));
-    ASSERT_TRUE(same(l, constants::PositiveUnit));
+    ASSERT_TRUE(same(l, physics::constants::PositiveUnit));
 }
 
 TEST(VectorTest, length)

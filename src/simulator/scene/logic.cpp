@@ -29,7 +29,7 @@ void Logic::setGravityType(GravityType type)
     m_gravityType = type;
 }
 
-void Logic::grabObject(types::obj_id id, const physics::Point& position)
+void Logic::grabObject(types::obj_id id, const algebra::Point& position)
 {
     m_grabbed = GrabbedObject(id, position);
 }
@@ -95,13 +95,13 @@ void Logic::gravitate()
 
             const types::value_t gravityValue = gravity(current, other);
 
-            const physics::Vector vCurrent(current.position(), other.position());
-            const physics::Vector vOther = physics::turn(vCurrent);
+            const algebra::Vector vCurrent(current.position(), other.position());
+            const algebra::Vector vOther = turn(vCurrent);
 
             if (!grabbed(current.id()))
-                current.addGravity(gravityValue * physics::normalize(vCurrent));
+                current.addGravity(gravityValue * normalize(vCurrent));
 
-            other.addGravity(gravityValue * physics::normalize(vOther));
+            other.addGravity(gravityValue * normalize(vOther));
         }
     }
 }
@@ -137,18 +137,18 @@ bool Logic::grabbed(types::value_t id)
 void Logic::processWalls(physics::Particle& particle)
 {
     const types::value_t radius = particle.radius();
-    const physics::Point& position = particle.position();
+    const algebra::Point& position = particle.position();
 
-    const physics::Point leftTop(position.x() - radius, position.y() - radius);
-    const physics::Point rightBottom(position.x() + radius, position.y() + radius);
+    const algebra::Point leftTop(position.x() - radius, position.y() - radius);
+    const algebra::Point rightBottom(position.x() + radius, position.y() + radius);
 
     if (leftTop.x() < physics::constants::Zero || rightBottom.x() > m_sceneWidth)
     {
-        particle.setVelocity(physics::flipHorizontal(particle.velocity()));
+        particle.setVelocity(flipHorizontal(particle.velocity()));
     }
     else if (leftTop.y() < physics::constants::Zero || rightBottom.y() > m_sceneHeight)
     {
-        particle.setVelocity(physics::flipVertical(particle.velocity()));
+        particle.setVelocity(flipVertical(particle.velocity()));
     }
 }
 
@@ -165,22 +165,22 @@ void Logic::collide(physics::Particle& current, physics::Particle& other)
     const types::value_t m2 = other.mass();
     const types::value_t m1m2 = m1 + m2;
 
-    const physics::Vector& v1 = current.velocity();
-    const physics::Vector& v2 = other.velocity();
+    const algebra::Vector& v1 = current.velocity();
+    const algebra::Vector& v2 = other.velocity();
 
-    const physics::Vector v1_v2 = v1 - v2;
-    const physics::Vector v2_v1 = physics::turn(v1_v2);
+    const algebra::Vector v1_v2 = v1 - v2;
+    const algebra::Vector v2_v1 = turn(v1_v2);
 
-    const physics::Vector x1_x2(current.position(), other.position());
-    const physics::Vector x2_x1 = physics::turn(x1_x2);
+    const algebra::Vector x1_x2(current.position(), other.position());
+    const algebra::Vector x2_x1 = turn(x1_x2);
 
-    const types::value_t distance = physics::length(x1_x2);
+    const types::value_t distance = length(x1_x2);
     const types::value_t distance2 = distance * distance;
 
-    const physics::Vector v1_new = v1 - ((2 * m2) / m1m2) *
+    const algebra::Vector v1_new = v1 - ((2 * m2) / m1m2) *
             ((v1_v2 * x1_x2) / distance2) * x1_x2;
 
-    const physics::Vector v2_new = v2 - ((2 * m1) / m1m2) *
+    const algebra::Vector v2_new = v2 - ((2 * m1) / m1m2) *
             ((v2_v1 * x2_x1) / distance2) * x2_x1;
 
     current.setVelocity(v1_new);
@@ -195,11 +195,11 @@ void Logic::update(physics::Particle& particle, bool withSnapshot)
     }
     else
     {
-        const physics::Vector vector = particle.gravity() + particle.velocity();
+        const algebra::Vector vector = particle.gravity() + particle.velocity();
         particle.move(vector.rx(), vector.ry());
     }
 
-    //particle.setGravity(physics::Vector());
+    //particle.setGravity(algebra::Vector());
 
     if (withSnapshot)
     {

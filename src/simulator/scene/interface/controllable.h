@@ -12,7 +12,7 @@ class Controllable
 public:
     virtual ~Controllable() {}
 
-    virtual void grabObject(types::obj_id id, const physics::Point& position) = 0;
+    virtual void grabObject(types::obj_id id, const algebra::Point& position) = 0;
     virtual void releaseObject(types::obj_id id) = 0;
 };
 } // namespace interface

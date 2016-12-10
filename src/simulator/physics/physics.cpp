@@ -18,7 +18,7 @@ Object::Object(types::value_t radius, types::value_t mass)
     checkObjectArguments(m_radius, m_mass);
 }
 
-Object::Object(const Point& position, types::value_t radius, types::value_t mass)
+Object::Object(const algebra::Point& position, types::value_t radius, types::value_t mass)
     : m_position(position)
     , m_radius(radius)
     , m_mass(mass)

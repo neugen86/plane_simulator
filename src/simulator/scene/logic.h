@@ -34,19 +34,19 @@ public:
     {
         bool m_off;
         types::obj_id m_id;
-        physics::Point m_position;
+        algebra::Point m_position;
 
     public:
         GrabbedObject()
             : m_off(false) {}
 
         GrabbedObject(types::obj_id id,
-                      const physics::Point& position)
+                      const algebra::Point& position)
             : m_off(true) , m_id(id) , m_position(position) {}
 
         bool off() const { return m_off; }
         types::obj_id id() const { return m_id; }
-        const physics::Point& position() const { return m_position; }
+        const algebra::Point& position() const { return m_position; }
 
     } m_grabbed;
 
@@ -57,7 +57,7 @@ public:
     GravityType gravityType() const;
     void setGravityType(GravityType type);
 
-    void grabObject(types::obj_id id, const physics::Point& position);
+    void grabObject(types::obj_id id, const algebra::Point& position);
     void releaseObject(types::obj_id id);
 
     const std::list<ObjectPtr>& snapshot() const;

@@ -44,7 +44,7 @@ void Scene::removeObject(types::obj_id id)
     m_removeList.insert(id);
 }
 
-void Scene::grabObject(types::obj_id id, const physics::Point& position)
+void Scene::grabObject(types::obj_id id, const algebra::Point& position)
 {
     concurrent::guard guard(m_grabLock);
     m_logic.grabObject(id, position);

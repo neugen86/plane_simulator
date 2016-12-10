@@ -1,6 +1,7 @@
 #ifndef PLAYABLE_H
 #define PLAYABLE_H
 
+#include <boost/chrono.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -26,8 +27,10 @@ class Playable
 
     boost::shared_ptr<boost::thread> m_pThread;
 
+    const boost::chrono::milliseconds m_duration;
+
 public:
-    Playable();
+    explicit Playable(types::duration_t duration);
     virtual ~Playable();
 
     bool start();

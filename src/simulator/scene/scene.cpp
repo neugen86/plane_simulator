@@ -4,10 +4,10 @@ namespace scene
 {
 const types::value_t Scene::DefaultWidth(1024.);
 const types::value_t Scene::DefaultHeight(768.);
+const types::duration_t Scene::DefaultDuration(10);
 
-Scene::Scene(types::value_t width, types::value_t height)
-    : interface::Periodic()
-    , interface::Playable()
+Scene::Scene(types::value_t width, types::value_t height, types::duration_t duration)
+    : interface::Playable(duration)
     , interface::Controllable()
     , interface::Container(width, height)
     , interface::WithGravity()
@@ -70,18 +70,12 @@ void Scene::insert()
     m_insertList.clear();
 }
 
-bool Scene::needSnapshot() const
-{
-    const bool isOver = expired();
-    return isOver ? haveSubscriptions() : false;
-}
-
 void Scene::play()
 {
     remove();
     insert();
 
-    const bool withSnaphot = needSnapshot();
+    const bool withSnaphot = haveSubscriptions();
 
     m_logic.gravitate();
     m_logic.move(withSnaphot);

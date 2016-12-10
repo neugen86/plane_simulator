@@ -2,7 +2,6 @@
 #define SCENE_H
 
 #include "logic.h"
-#include "interface/periodic.h"
 #include "interface/playable.h"
 #include "interface/container.h"
 #include "interchange/broadcaster.h"
@@ -10,8 +9,7 @@
 namespace scene
 {
 class Scene
-        : public interface::Periodic
-        , public interface::Playable
+        : public interface::Playable
         , public interface::Controllable
         , public interface::Container
         , public interface::WithGravity
@@ -29,10 +27,12 @@ class Scene
 
     static const types::value_t DefaultWidth;
     static const types::value_t DefaultHeight;
+    static const types::duration_t DefaultDuration;
 
 public:
     explicit Scene(types::value_t width = DefaultWidth,
-                   types::value_t height = DefaultHeight);
+                   types::value_t height = DefaultHeight,
+                   types::duration_t duration = DefaultDuration);
 
     physics::Gravity::Type gravityType() const;
     void setGravityType(physics::Gravity::Type type);

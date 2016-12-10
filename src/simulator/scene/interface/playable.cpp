@@ -4,7 +4,7 @@ namespace scene
 {
 namespace interface
 {
-Playable::Playable()
+Playable::Playable(types::duration_t duration)
     : boost::noncopyable()
     , m_paused(false)
     , m_stopped(true)
@@ -12,6 +12,7 @@ Playable::Playable()
     , m_lock()
     , m_finishLock()
     , m_pThread(nullptr)
+    , m_duration(duration)
 {
 }
 
@@ -99,9 +100,14 @@ bool Playable::finished() const
 
 void Playable::loop()
 {
+    using namespace boost::chrono;
+    typedef boost::chrono::high_resolution_clock clock_t;
+
     for (;;)
     {
         m_resumeEvent.wait();
+
+        const clock_t::time_point now = clock_t::now();
 
         if (finished())
             break;
@@ -114,6 +120,16 @@ void Playable::loop()
         {
             stop();
             break;
+        }
+
+        const milliseconds spent =
+                duration_cast<milliseconds>(clock_t::now() - now);
+
+        if (m_duration > spent)
+        {
+            const nanoseconds rest =
+                    duration_cast<nanoseconds>(m_duration - spent);
+            boost::this_thread::sleep_for(rest);
         }
     }
 }

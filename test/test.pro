@@ -9,7 +9,6 @@ SOURCES += \
     ../src/simulator/interchange/subscription.cpp \
     ../src/simulator/physics/algebra.cpp \
     ../src/simulator/physics/physics.cpp \
-    ../src/simulator/scene/interface/periodic.cpp \
     ../src/simulator/scene/interface/playable.cpp \
     ../src/simulator/scene/scene.cpp \
     ../src/simulator/scene/logic.cpp

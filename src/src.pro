@@ -22,7 +22,6 @@ SOURCES += \
     simulator/interchange/subscription.cpp \
     simulator/physics/algebra.cpp \
     simulator/physics/physics.cpp \
-    simulator/scene/interface/periodic.cpp \
     simulator/scene/interface/playable.cpp \
     simulator/scene/logic.cpp \
     simulator/scene/scene.cpp
@@ -42,7 +41,6 @@ HEADERS  += \
     simulator/physics/types.h \
     simulator/scene/interface/container.h \
     simulator/scene/interface/controllable.h \
-    simulator/scene/interface/periodic.h \
     simulator/scene/interface/playable.h \
     simulator/scene/interface/with_gravity.h \
     simulator/scene/logic.h \

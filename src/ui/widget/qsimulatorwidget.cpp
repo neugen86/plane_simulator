@@ -12,7 +12,7 @@ QSimulatorWidget::QSimulatorWidget(const QContainerPtr& pContainer,
     , m_subscriber(pBroadcaster)
     , m_controller(pContainer->width(), pContainer->height(), this)
 {
-    connect(&m_subscriber, SIGNAL(updated()), this, SLOT(update()));
+    connect(&m_subscriber, SIGNAL(updated()), this, SLOT(onUpdate()));
     m_subscriber.activate();
 }
 
@@ -30,5 +30,6 @@ void QSimulatorWidget::paintEvent(QPaintEvent*)
 void QSimulatorWidget::onUpdate()
 {
     m_controller.setData(m_subscriber.data());
+    update();
 }
 } // namespace widget

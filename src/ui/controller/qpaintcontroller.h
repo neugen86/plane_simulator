@@ -1,8 +1,12 @@
 #ifndef QPAINTCONTROLLER_H
 #define QPAINTCONTROLLER_H
 
+#include <QMap>
 #include <QSize>
+#include <QMutex>
 #include <QObject>
+#include <QPointF>
+#include <QSharedPointer>
 
 #include "interchange/subscription.h"
 
@@ -10,41 +14,45 @@ class QPainter;
 
 namespace controller
 {
-template <typename T>
-bool less(T lhs, T rhs)
-{
-    return rhs - lhs > std::numeric_limits<T>::epsilon();
-}
-
 class QPaintController
         : public QObject
 {
     Q_OBJECT
 
+    typedef physics::Object PhysObject;
+    typedef QSharedPointer<PhysObject> QPhysObjectPtr;
+
     class Rectangular
     {
-        double m_ratio;
-        double m_width;
-        double m_height;
+        types::value_t m_ratio;
+        types::value_t m_width;
+        types::value_t m_height;
 
     public:
-        explicit Rectangular(double width = 0., double height = 0.)
+        explicit Rectangular(types::value_t width = 0.,
+                             types::value_t height = 0.)
             : m_ratio(width / height)
             , m_width(width), m_height(height) {}
-        double ratio() const { return m_ratio; }
-        double width() const { return m_width; }
-        double height() const { return m_height; }
-        void setWidth(double width) { m_width = width; }
-        void setHeight(double height) { m_height = height; }
+        types::value_t ratio() const { return m_ratio; }
+        types::value_t width() const { return m_width; }
+        types::value_t height() const { return m_height; }
     };
 
-    double m_ratio;
+    QMutex m_lock;
+
+    QPointF m_offset;
+
+    types::value_t m_lambda;
 
     Rectangular m_rectProjection;
     const Rectangular m_rectSource;
 
+    QMap<types::obj_id, QPhysObjectPtr> m_objects;
+
 public:
-    QPaintController(double sourceWidth, double sourceHeight, QObject *parent = 0);
+    QPaintController(types::value_t sourceWidth,
+                     types::value_t sourceHeight,
+                     QObject *parent = 0);
 
     void setCanvasSize(const QSize& size);
     void setData(const interchange::ObjectList& list);

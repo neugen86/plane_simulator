@@ -9,8 +9,10 @@ const types::duration_t Subscription::DefaultDuration(0);
 Subscription::Subscription(types::duration_t duration)
     : SubscriptionConsumer()
     , SubscriptionProducer()
+    , m_active(true)
     , m_duration(duration)
     , m_dataLock()
+    , m_activeLock()
     , m_durationLock()
     , m_then(clock_t::now())
 {
@@ -50,6 +52,26 @@ ObjectList Subscription::get() const
 
     concurrent::guard guard(m_dataLock);
     return m_list;
+}
+
+void Subscription::deactivate()
+{
+    {
+        concurrent::guard guard(m_activeLock);
+        m_active = false;
+    }
+    {
+        concurrent::guard guard(m_dataLock);
+        m_list.clear();
+    }
+
+    notify();
+}
+
+bool Subscription::active() const
+{
+    concurrent::guard guard(m_activeLock);
+    return m_active;
 }
 
 bool Subscription::expired() const

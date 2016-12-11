@@ -32,6 +32,8 @@ void Broadcaster::unsubscribe(const ConsumerPtr& consumer)
     const SubscriptionPtr pSubscription =
             boost::static_pointer_cast<Subscription>(consumer);
 
+    pSubscription->deactivate();
+
     m_subscriptions.remove(pSubscription);
 }
 
@@ -45,16 +47,22 @@ void Broadcaster::feed(const ObjectList& list)
 {
     concurrent::guard guard(m_lock);
 
-    for (const ProducerPtr& writer : m_subscriptions)
+    for (const ProducerPtr& producer : m_subscriptions)
     {
-        if (writer->expired())
-            writer->set(list);
+        if (producer->expired())
+            producer->set(list);
     }
 }
 
 void Broadcaster::clear()
 {
     concurrent::guard guard(m_lock);
+
+    for (const ProducerPtr& producer : m_subscriptions)
+    {
+        producer->deactivate();
+    }
+
     m_subscriptions.clear();
 }
 } // namespace interchange

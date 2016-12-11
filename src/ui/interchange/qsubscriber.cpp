@@ -22,10 +22,14 @@ void QThreadWorker::run()
     {
         {
             concurrent::guard guard(m_lock);
-            if (m_stopped) break;
+            if (m_stopped)
+                break;
         }
 
         m_callback.setData(m_pConsumer->get());
+
+        if (!m_pConsumer->active())
+            break;
     }
 }
 
@@ -88,9 +92,10 @@ bool QSubscriber::deactivate()
     if (!m_active)
         return false;
 
+    m_pBroadcaster->unsubscribe(m_pConsumer);
+
     stopThread();
 
-    m_pBroadcaster->unsubscribe(m_pConsumer);
     m_pConsumer.reset();
 
     m_active = false;

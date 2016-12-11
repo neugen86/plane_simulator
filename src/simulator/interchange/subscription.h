@@ -22,6 +22,8 @@ public:
     virtual types::duration_t duration() const = 0;
 
     virtual ObjectList get() const = 0;
+
+    virtual bool active() const = 0;
 };
 
 class SubscriptionProducer
@@ -32,12 +34,16 @@ public:
     virtual void set(const ObjectList& list) = 0;
 
     virtual bool expired() const = 0;
+
+    virtual void deactivate() = 0;
 };
 
 class Subscription
         : public SubscriptionConsumer
         , public SubscriptionProducer
 {
+    bool m_active;
+
     ObjectList m_list;
 
     concurrent::event m_event;
@@ -45,6 +51,7 @@ class Subscription
     boost::chrono::milliseconds m_duration;
 
     mutable concurrent::spinlock m_dataLock;
+    mutable concurrent::spinlock m_activeLock;
     mutable concurrent::spinlock m_durationLock;
 
     mutable boost::chrono::high_resolution_clock::time_point m_then;
@@ -60,6 +67,9 @@ public:
 
     void set(const ObjectList& list);
     ObjectList get() const;
+
+    void deactivate();
+    bool active() const;
 
     bool expired() const;
 

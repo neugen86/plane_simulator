@@ -74,7 +74,7 @@ class Gravity
 public:
     enum class Type
     {
-        None, Simple, Newton
+        None, Simple, Newtonian
     };
 
 private:

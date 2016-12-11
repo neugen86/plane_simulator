@@ -28,7 +28,7 @@ Object::Object(const algebra::Point& position, types::value_t radius, types::val
 
 types::value_t newtonGravity(const Object& lhs, const Object& rhs)
 {
-    static const types::value_t GravitationalConstant(constants::PositiveUnit);
+    static const types::value_t GravitationalConstant(6.7);
 
     const types::value_t d = distance(lhs.position(), rhs.position());
 
@@ -54,7 +54,7 @@ types::value_t Gravity::operator()(const Object& lhs, const Object& rhs) const
     {
     case Type::Simple:
         return simpeGravity(lhs, rhs);
-    case Type::Newton:
+    case Type::Newtonian:
         return newtonGravity(lhs, rhs);
     case Type::None:
     default:

@@ -44,6 +44,11 @@ void Scene::removeObject(types::obj_id id)
     m_removeList.insert(id);
 }
 
+void Scene::removeAll()
+{
+    m_logic.removeAll();
+}
+
 void Scene::grabObject(types::obj_id id, const algebra::Point& position)
 {
     concurrent::guard guard(m_grabLock);
@@ -70,7 +75,7 @@ void Scene::insert()
     m_insertList.clear();
 }
 
-void Scene::play()
+void Scene::iteration()
 {
     remove();
     insert();
@@ -83,4 +88,10 @@ void Scene::play()
     if (withSnaphot)
         feed(m_logic.snapshot());
 }
+
+void Scene::onStop()
+{
+    m_logic.reset();
+}
+
 } // namespace scene

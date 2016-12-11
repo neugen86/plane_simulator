@@ -39,6 +39,7 @@ public:
 
     void insertObject(const physics::Object& object);
     void removeObject(types::obj_id id);
+    void removeAll();
 
     void grabObject(types::obj_id id, const algebra::Point& position);
     void releaseObject(types::obj_id id);
@@ -49,7 +50,9 @@ private:
 
     bool needSnapshot() const;
 
-    void play();
+    void iteration();
+
+    void onStop();
 
 };
 } // namespace scene

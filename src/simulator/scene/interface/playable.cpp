@@ -9,6 +9,7 @@ Playable::Playable(types::duration_t duration)
     , m_paused(false)
     , m_stopped(true)
     , m_finishFlag(true)
+    , m_state(PlaybackState::STOPPED)
     , m_lock()
     , m_finishLock()
     , m_pThread(nullptr)
@@ -18,7 +19,7 @@ Playable::Playable(types::duration_t duration)
 
 Playable::~Playable()
 {
-    stop();
+    stop(true);
 }
 
 bool Playable::start()
@@ -53,6 +54,10 @@ bool Playable::start()
         return false;
     }
 
+    m_state = PlaybackState::STARTED;
+
+    onStart();
+
     return true;
 }
 
@@ -64,12 +69,16 @@ bool Playable::pause()
         return false;
 
     m_resumeEvent.reset();
+
+    m_state = PlaybackState::PAUSED;
     m_paused = true;
+
+    onPause();
 
     return true;
 }
 
-bool Playable::stop()
+bool Playable::stop(bool fromDestructor)
 {
     concurrent::guard guard(m_lock);
 
@@ -87,7 +96,12 @@ bool Playable::stop()
     m_pThread->join();
     m_pThread.reset();
 
+    m_state = PlaybackState::STOPPED;
     m_stopped = true;
+    m_paused = false;
+
+    if (!fromDestructor)
+        onStop();
 
     return true;
 }
@@ -114,9 +128,9 @@ void Playable::loop()
 
         try
         {
-            play();
+            iteration();
         }
-        catch (...)
+        catch(...)
         {
             stop();
             break;

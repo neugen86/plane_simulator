@@ -126,6 +126,21 @@ void Logic::move(bool withSnapshot)
     }
 }
 
+void Logic::removeAll()
+{
+    m_particles.clear();
+}
+
+void Logic::reset()
+{
+    for (auto i = m_particles.begin(); i != m_particles.end(); ++i)
+    {
+        physics::Particle& current(**i);
+        current.setVelocity(algebra::NullVector);
+        current.setGravity(algebra::NullVector);
+    }
+}
+
 bool Logic::grabbed(types::value_t id)
 {
     if (m_grabbed.off())

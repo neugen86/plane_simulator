@@ -9,6 +9,11 @@
 #include "concurrent/lock.h"
 #include "concurrent/event.h"
 
+enum class PlaybackState
+{
+    STARTED, PAUSED, STOPPED
+};
+
 namespace scene
 {
 namespace interface
@@ -19,6 +24,8 @@ class Playable
     bool m_paused;
     bool m_stopped;
     bool m_finishFlag;
+
+    PlaybackState m_state;
 
     concurrent::event m_resumeEvent;
 
@@ -33,16 +40,21 @@ public:
     explicit Playable(types::duration_t duration);
     virtual ~Playable();
 
+    PlaybackState state() const { return m_state; }
+
     bool start();
     bool pause();
-    bool stop();
+    bool stop(bool fromDestructor = false);
 
 private:
     bool finished() const;
     void loop();
 
 private:
-    virtual void play() = 0;
+    virtual void iteration() = 0;
+    virtual void onStart() {}
+    virtual void onPause() {}
+    virtual void onStop() {}
 
 };
 } // namespace interface

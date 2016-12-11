@@ -44,6 +44,10 @@ public:
     void setRx(types::value_t rx) { m_rx = rx; }
     void setRy(types::value_t ry) { m_ry = ry; }
 };
+
+static const Point NullPoint;
+static const Vector NullVector;
+
 } // namespace algebra
 
 const algebra::Vector operator+(const algebra::Vector& lhs, const algebra::Vector& rhs);

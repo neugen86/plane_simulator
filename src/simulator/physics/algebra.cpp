@@ -98,7 +98,7 @@ types::value_t distance(const algebra::Point& lhs, const algebra::Point& rhs)
 
 types::value_t length(const algebra::Vector& vector)
 {
-    return distance(algebra::Point(), algebra::Point(vector.rx(), vector.ry()));
+    return distance(algebra::NullPoint, algebra::Point(vector.rx(), vector.ry()));
 }
 
 bool same(types::value_t lhs, types::value_t rhs)

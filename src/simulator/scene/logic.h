@@ -67,6 +67,9 @@ public:
     void gravitate();
     void move(bool withSnapshot);
 
+    void removeAll();
+    void reset();
+
 private:
     bool grabbed(types::value_t id);
     void processWalls(physics::Particle& particle);

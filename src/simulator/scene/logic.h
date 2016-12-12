@@ -60,7 +60,7 @@ public:
     void grabObject(types::obj_id id, const algebra::Point& position);
     void releaseObject(types::obj_id id);
 
-    const std::list<ObjectPtr>& snapshot() const;
+    const std::list<ObjectPtr>& snapshot(bool force = false);
 
     void remove(const std::set<types::obj_id>& list);
     void insert(const std::list<physics::Object>& list);

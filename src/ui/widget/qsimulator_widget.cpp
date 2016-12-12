@@ -58,6 +58,12 @@ void QSimulatorWidget::mouseReleaseEvent(QMouseEvent* event)
 void QSimulatorWidget::mouseMoveEvent(QMouseEvent* event)
 {
     m_controller.setMousePos(event->pos(), m_leftButtonPressed);
+
+    /**
+      This update call is needed for interacting with objects
+      when scene state is not playing
+    */
+    update();
 }
 
 void QSimulatorWidget::resizeEvent(QResizeEvent* event)

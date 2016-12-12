@@ -34,13 +34,42 @@ void Scene::setGravityType(physics::Gravity::Type type)
 void Scene::insertObject(const physics::Object& object)
 {
     concurrent::guard guard(m_insertLock);
+
     m_insertList.push_back(object);
+
+    if (state() != PlaybackState::STARTED)
+    {
+        m_logic.insert(m_insertList);
+
+        SubscriptionData data;
+        data.maxDuration = realDuration();
+        data.objectList = m_logic.snapshot(true);
+
+        feed(data, true);
+
+        m_insertList.clear();
+    }
 }
 
 void Scene::removeObject(types::obj_id id)
 {
     concurrent::guard guard(m_removeLock);
+
     m_removeList.insert(id);
+
+    if (state() != PlaybackState::STARTED)
+    {
+        m_logic.remove(m_removeList);
+
+        SubscriptionData data;
+        data.maxDuration = realDuration();
+        data.objectList = m_logic.snapshot(true);
+        data.removedIds = m_removeList;
+
+        feed(data, true);
+
+        m_removeList.clear();
+    }
 }
 
 void Scene::removeAll()
@@ -97,8 +126,8 @@ void Scene::iteration()
 
     if (withSnaphot)
     {
-        data.objectList = m_logic.snapshot();
         data.maxDuration = realDuration();
+        data.objectList = m_logic.snapshot();
 
         feed(data, haveChanges);
     }

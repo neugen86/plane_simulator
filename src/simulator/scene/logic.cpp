@@ -43,8 +43,20 @@ void Logic::releaseObject(types::obj_id id)
     }
 }
 
-const std::list<ObjectPtr>& Logic::snapshot() const
+const std::list<ObjectPtr>& Logic::snapshot(bool force)
 {
+    if (force)
+    {
+        m_snapshot.clear();
+
+        for (auto i = m_particles.begin(); i != m_particles.end(); ++i)
+        {
+            const ObjectPtr pObject(new physics::Object(**i));
+            m_snapshot.push_back(pObject);
+        }
+    }
+
+
     return m_snapshot;
 }
 

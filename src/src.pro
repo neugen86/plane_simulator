@@ -41,6 +41,7 @@ HEADERS  += \
     simulator/physics/types.h \
     simulator/scene/interface/container.h \
     simulator/scene/interface/controllable.h \
+    simulator/scene/interface/controllable_container.h \
     simulator/scene/interface/playable.h \
     simulator/scene/interface/with_gravity.h \
     simulator/scene/logic.h \

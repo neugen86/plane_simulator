@@ -4,11 +4,11 @@
 #include <QMouseEvent>
 #include <QResizeEvent>
 
-QSimulatorWidget::QSimulatorWidget(const QContainerPtr& pContainer,
+QSimulatorWidget::QSimulatorWidget(const QControllableContainerPtr& pContainer,
                                    const QBroadcasterPtr& pBroadcaster,
                                    QWidget* parent)
     : QWidget(parent)
-    , m_pressedButton(Button::None)
+    , m_leftButtonPressed(false)
     , m_controller(pContainer, this)
     , m_subscriber(pBroadcaster)
 {
@@ -36,38 +36,28 @@ void QSimulatorWidget::clear()
 void QSimulatorWidget::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::MouseButton::LeftButton)
-    {
-        m_pressedButton = Button::Left;
-    }
-    else if (event->button() == Qt::MouseButton::RightButton)
-    {
-        m_pressedButton = Button::Right;
-    }
-    else return;
+        m_leftButtonPressed = true;
 
-    m_pressedPos = event->pos();
+    if (event->button() == Qt::MouseButton::RightButton)
+    {
+        m_leftButtonPressed = false;
+        m_controller.removeSelected();
+    }
 }
 
 void QSimulatorWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::MouseButton::LeftButton &&
-            Button::Left == m_pressedButton && event->pos() == m_pressedPos)
+    if (event->button() == Qt::MouseButton::LeftButton && m_leftButtonPressed)
     {
+        m_leftButtonPressed = false;
+        m_controller.releaseSelected();
         m_controller.insertAt(event->pos());
     }
-    else if (event->button() == Qt::MouseButton::RightButton &&
-             Button::Right == m_pressedButton && event->pos() == m_pressedPos)
-    {
-        m_controller.removeSelected();
-    }
-    else return;
-
-    m_pressedButton = Button::None;
 }
 
 void QSimulatorWidget::mouseMoveEvent(QMouseEvent* event)
 {
-    m_controller.setMousePos(event->pos());
+    m_controller.setMousePos(event->pos(), m_leftButtonPressed);
 }
 
 void QSimulatorWidget::resizeEvent(QResizeEvent* event)

@@ -11,18 +11,13 @@ class QSimulatorWidget
 {
     Q_OBJECT
 
-    QPoint m_pressedPos;
-
-    enum class Button
-    {
-        None, Left, Right
-    } m_pressedButton;
+    bool m_leftButtonPressed;
 
     QSimulatorController m_controller;
     interchange::QSubscriber m_subscriber;
 
 public:
-    QSimulatorWidget(const QContainerPtr& pContainer,
+    QSimulatorWidget(const QControllableContainerPtr& pContainer,
                      const QBroadcasterPtr& pBroadcaster,
                      QWidget *parent = 0);
 

@@ -90,7 +90,7 @@ void MainWindow::updateFpsActions(types::duration_t duration)
     m_pFasterAction->setEnabled(duration > 0);
     m_pSlowerAction->setEnabled(duration < FpsStep * MaxFpsSteps);
 
-    const types::duration_t max = m_pPlayable->duration();
+    const types::duration_t max = m_pPlayable->realDuration();
 
     m_desiredFrameRate = MsPerSecond / std::max(duration, max);
     m_maxFrameRate = MsPerSecond / max;

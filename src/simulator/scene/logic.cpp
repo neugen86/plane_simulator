@@ -37,7 +37,10 @@ void Logic::grabObject(types::obj_id id, const algebra::Point& position)
 void Logic::releaseObject(types::obj_id id)
 {
     if (m_grabbed.id() == id)
+    {
+
         m_grabbed = GrabbedObject();
+    }
 }
 
 const std::list<ObjectPtr>& Logic::snapshot() const
@@ -206,6 +209,8 @@ void Logic::update(physics::Particle& particle, bool withSnapshot)
 {
     if (grabbed(particle.id()))
     {
+        particle.setGravity(algebra::NullVector);
+        particle.setVelocity(algebra::NullVector);
         particle.setPosition(m_grabbed.position());
     }
     else

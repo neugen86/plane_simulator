@@ -9,11 +9,11 @@
 #include <QSharedPointer>
 
 #include "interchange/subscription.h"
-#include "scene/interface/container.h"
+#include "scene/interface/controllable_container.h"
 
 class QPainter;
 
-typedef QSharedPointer<scene::interface::Container> QContainerPtr;
+typedef QSharedPointer<scene::interface::ControllableContainer> QControllableContainerPtr;
 
 class QSimulatorController
         : public QObject
@@ -50,26 +50,26 @@ class QSimulatorController
     Rectangular m_rectProjection;
     const Rectangular m_rectSource;
 
-    const QContainerPtr m_pContainer;
+    const QControllableContainerPtr m_pContainer;
 
     QMap<types::obj_id, QPhysObjectPtr> m_objects;
 
     PhysObject* m_pSelectedObj;
 
 public:
-    QSimulatorController(const QContainerPtr& pContainer,
+    QSimulatorController(const QControllableContainerPtr& pContainer,
                          QObject *parent = 0);
 
-    void insertAt(const QPoint& point);
-    void removeSelected();
-
-    void setMousePos(const QPoint& pos) { m_pos = pos; }
+    void paint(QPainter& painter);
 
     void setCanvasSize(const QSize& size);
-
     void setData(const SubscriptionData& data);
 
-    void paint(QPainter& painter);
+    void setMousePos(const QPoint& point, bool fixed);
+
+    void insertAt(const QPoint& point);
+    void releaseSelected();
+    void removeSelected();
 
     void clear();
 

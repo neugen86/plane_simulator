@@ -8,8 +8,7 @@ const types::duration_t Scene::DefaultDuration(10);
 
 Scene::Scene(types::value_t width, types::value_t height, types::duration_t duration)
     : interface::Playable(duration)
-    , interface::Controllable()
-    , interface::Container(width, height)
+    , interface::ControllableContainer(width, height)
     , interface::WithGravity()
     , interchange::Broadcaster()
     , m_logic(width, height)

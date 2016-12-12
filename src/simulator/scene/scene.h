@@ -3,15 +3,14 @@
 
 #include "logic.h"
 #include "interface/playable.h"
-#include "interface/container.h"
 #include "interchange/broadcaster.h"
+#include "interface/controllable_container.h"
 
 namespace scene
 {
 class Scene
         : public interface::Playable
-        , public interface::Controllable
-        , public interface::Container
+        , public interface::ControllableContainer
         , public interface::WithGravity
         , public interchange::Broadcaster
 {

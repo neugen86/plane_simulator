@@ -1,6 +1,7 @@
 #ifndef SUBSCRIPTION_H
 #define SUBSCRIPTION_H
 
+#include <set>
 #include <list>
 
 #include <boost/chrono.hpp>
@@ -9,10 +10,18 @@
 #include "concurrent/lock.h"
 #include "concurrent/event.h"
 
+typedef std::set<types::obj_id> IdSet;
+typedef std::list<physics::ObjectPtr> PhysObjectList;
+
+struct SubscriptionData
+{
+    IdSet removedIds;
+    PhysObjectList objectList;
+    types::duration_t maxDuration;
+};
+
 namespace interchange
 {
-typedef std::list<physics::ObjectPtr> ObjectList;
-
 class SubscriptionConsumer
 {
 public:
@@ -21,7 +30,7 @@ public:
     virtual void setDuration(types::duration_t duration) = 0;
     virtual types::duration_t duration() const = 0;
 
-    virtual ObjectList get() const = 0;
+    virtual SubscriptionData get() const = 0;
 
     virtual bool active() const = 0;
 };
@@ -31,7 +40,7 @@ class SubscriptionProducer
 public:
     virtual ~SubscriptionProducer() {}
 
-    virtual void set(const ObjectList& list) = 0;
+    virtual void set(const SubscriptionData& data) = 0;
 
     virtual bool expired() const = 0;
 
@@ -44,7 +53,7 @@ class Subscription
 {
     bool m_active;
 
-    ObjectList m_list;
+    SubscriptionData m_data;
 
     concurrent::event m_event;
 
@@ -65,8 +74,8 @@ public:
     virtual void setDuration(types::duration_t duration);
     virtual types::duration_t duration() const;
 
-    void set(const ObjectList& list);
-    ObjectList get() const;
+    void set(const SubscriptionData& data);
+    SubscriptionData get() const;
 
     void deactivate();
     bool active() const;

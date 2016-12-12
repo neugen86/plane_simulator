@@ -37,23 +37,23 @@ types::duration_t Subscription::duration() const
     return m_duration.count();
 }
 
-void Subscription::set(const ObjectList& list)
+void Subscription::set(const SubscriptionData& data)
 {
     if (!m_dataLock.try_lock())
         return;
 
-    m_list = list;
+    m_data = data;
     m_dataLock.unlock();
 
     notify();
 }
 
-ObjectList Subscription::get() const
+SubscriptionData Subscription::get() const
 {
     wait();
 
     concurrent::guard guard(m_dataLock);
-    return m_list;
+    return m_data;
 }
 
 void Subscription::deactivate()
@@ -64,7 +64,7 @@ void Subscription::deactivate()
     }
     {
         concurrent::guard guard(m_dataLock);
-        m_list.clear();
+        m_data = SubscriptionData();
     }
 
     notify();

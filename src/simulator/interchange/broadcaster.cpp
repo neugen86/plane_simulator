@@ -43,14 +43,14 @@ bool Broadcaster::haveSubscriptions() const
     return !m_subscriptions.empty();
 }
 
-void Broadcaster::feed(const ObjectList& list)
+void Broadcaster::feed(const SubscriptionData& data, bool force)
 {
     concurrent::guard guard(m_lock);
 
     for (const ProducerPtr& producer : m_subscriptions)
     {
-        if (producer->expired())
-            producer->set(list);
+        if (force || producer->expired())
+            producer->set(data);
     }
 }
 

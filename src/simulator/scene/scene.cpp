@@ -61,24 +61,35 @@ void Scene::releaseObject(types::obj_id id)
     m_logic.releaseObject(id);
 }
 
-void Scene::remove()
-{
-    concurrent::guard guard(m_removeLock);
-    m_logic.remove(m_removeList);
-    m_removeList.clear();
-}
-
-void Scene::insert()
-{
-    concurrent::guard guard(m_insertLock);
-    m_logic.insert(m_insertList);
-    m_insertList.clear();
-}
-
 void Scene::iteration()
 {
-    remove();
-    insert();
+    SubscriptionData data;
+
+    bool haveChanges = false;
+
+    {
+        concurrent::guard guard(m_removeLock);
+
+        if (!m_removeList.empty())
+        {
+            data.removedIds = m_removeList;
+            haveChanges = true;
+
+            m_logic.remove(m_removeList);
+            m_removeList.clear();
+        }
+    }
+
+    {
+        concurrent::guard guard(m_insertLock);
+        if (!m_insertList.empty())
+        {
+            haveChanges = true;
+
+            m_logic.insert(m_insertList);
+            m_insertList.clear();
+        }
+    }
 
     const bool withSnaphot = haveSubscriptions();
 
@@ -86,7 +97,12 @@ void Scene::iteration()
     m_logic.move(withSnaphot);
 
     if (withSnaphot)
-        feed(m_logic.snapshot());
+    {
+        data.objectList = m_logic.snapshot();
+        data.maxDuration = realDuration();
+
+        feed(data, haveChanges);
+    }
 }
 
 void Scene::onStop()

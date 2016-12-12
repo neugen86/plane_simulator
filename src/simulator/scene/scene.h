@@ -17,13 +17,13 @@ class Scene
 {
     Logic m_logic;
 
+    std::set<types::obj_id> m_removeList;
+    std::list<physics::Object> m_insertList;
+
     concurrent::spinlock m_grabLock;
     concurrent::spinlock m_insertLock;
     concurrent::spinlock m_removeLock;
     mutable concurrent::spinlock m_gravityLock;
-
-    std::set<types::obj_id> m_removeList;
-    std::list<physics::Object> m_insertList;
 
     static const types::value_t DefaultWidth;
     static const types::value_t DefaultHeight;
@@ -45,11 +45,6 @@ public:
     void releaseObject(types::obj_id id);
 
 private:
-    void remove();
-    void insert();
-
-    bool needSnapshot() const;
-
     void iteration();
 
     void onStop();

@@ -1,23 +1,23 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <widget/qsimulatorwidget.h>
+#include <widget/qsimulator_widget.h>
 
 static const double MsPerSecond = 1000;
 static const unsigned int MaxFpsSteps = 6;
-static const types::duration_t FpsStep = 50;
+static const types::duration_t FpsStep = 75;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_pScene(QSharedPointer<scene::Scene>(new scene::Scene))
+    , m_maxFrameRate(0)
+    , m_desiredFrameRate(0)
 {
     ui->setupUi(this);
 
-    m_pSimulatorWidget.reset(new QSimulatorWidget(m_pScene, m_pScene));
-    setCentralWidget(m_pSimulatorWidget.data());
-
     initMenu();
+
+    initScene();
 
     onFaster();
 
@@ -63,73 +63,48 @@ void MainWindow::initMenu()
     menu->addAction(tr("About..."), this, SLOT(onAbout()));
 }
 
+void MainWindow::initScene()
+{
+    QSharedPointer<scene::Scene> pScene(new scene::Scene);
+
+    m_pSimulatorWidget.reset(new QSimulatorWidget(pScene, pScene));
+    setCentralWidget(m_pSimulatorWidget.data());
+
+    m_pWithGravity = pScene;
+    m_pPlayable = pScene;
+}
+
 void MainWindow::updateStatus()
 {
-    static const QString ErrorValue(tr("ERROR"));
     static const QString StatusMessage(tr("Scene was %1, gravity is %2, " \
                                           "fps = %3, maximum fps = %4"));
 
-    QString sceneState;
-    switch (m_pScene->state())
-    {
-    case PlaybackState::STARTED:
-        sceneState = tr("started");
-        break;
-    case PlaybackState::PAUSED:
-        sceneState = tr("paused");
-        break;
-    case PlaybackState::STOPPED:
-        sceneState = tr("stopped");
-        break;
-    default:
-        sceneState = ErrorValue;
-    }
-
-    QString gravityValue;
-    switch (m_pScene->gravityType())
-    {
-    case physics::Gravity::Type::Newtonian:
-        gravityValue = tr("newtonian");
-        break;
-    case physics::Gravity::Type::Simple:
-        gravityValue = tr("simple");
-        break;
-    case physics::Gravity::Type::None:
-        gravityValue = tr("none");
-        break;
-    default:
-        gravityValue = ErrorValue;
-    }
-
-    const types::duration_t subscriptionDuration = m_pSimulatorWidget->duration();
-
-    const double desiredFrameRate = MsPerSecond /
-            (subscriptionDuration > 0 ? subscriptionDuration : m_pScene->duration());
-
-    const double realFrameRate = MsPerSecond / m_pScene->realDuration();
-
-    ui->statusBar->showMessage(StatusMessage .arg(sceneState).arg(gravityValue)
-                               .arg(QString::number(desiredFrameRate))
-                               .arg(QString::number(realFrameRate)));
+    ui->statusBar->showMessage(StatusMessage
+                               .arg(m_strSceneState).arg(m_strGravityValue)
+                               .arg(QString::number(m_desiredFrameRate))
+                               .arg(QString::number(m_maxFrameRate)));
 }
 
 void MainWindow::updateFpsActions(types::duration_t duration)
 {
     m_pFasterAction->setEnabled(duration > 0);
     m_pSlowerAction->setEnabled(duration < FpsStep * MaxFpsSteps);
+
+    const types::duration_t max = m_pPlayable->duration();
+
+    m_desiredFrameRate = MsPerSecond / std::max(duration, max);
+    m_maxFrameRate = MsPerSecond / max;
+
+    updateStatus();
 }
 
 void MainWindow::onReset()
 {
     onStop();
 
-    m_pScene->removeAll();
+    m_pSimulatorWidget->clear();
 
-    m_pScene->insertObject(physics::Object(algebra::Point(256., 192.), 5.));
-    m_pScene->insertObject(physics::Object(algebra::Point(512., 567.), 7.5));
-    m_pScene->insertObject(physics::Object(algebra::Point(768., 384.), 10.));
-
-    switch (m_pScene->gravityType())
+    switch (m_pWithGravity->gravityType())
     {
     case physics::Gravity::Type::Newtonian:
         m_pNewtonianGravityAction->setChecked(true);
@@ -140,6 +115,8 @@ void MainWindow::onReset()
     default:
         m_pNoneGravityAction->setChecked(true);
     }
+
+    onStart();
 }
 
 void MainWindow::onStart()
@@ -148,7 +125,8 @@ void MainWindow::onStart()
     m_pPauseAction->setEnabled(true);
     m_pStopAction->setEnabled(true);
 
-    m_pScene->start();
+    if (m_pPlayable->start())
+        m_strSceneState = tr("started");
 
     updateStatus();
 }
@@ -159,7 +137,8 @@ void MainWindow::onPause()
     m_pPauseAction->setEnabled(false);
     m_pStopAction->setEnabled(true);
 
-    m_pScene->pause();
+    if (m_pPlayable->pause())
+        m_strSceneState = tr("paused");
 
     updateStatus();
 }
@@ -170,7 +149,8 @@ void MainWindow::onStop()
     m_pPauseAction->setEnabled(false);
     m_pStopAction->setEnabled(false);
 
-    m_pScene->stop();
+    if (m_pPlayable->stop())
+        m_strSceneState = tr("stopped");
 
     updateStatus();
 }
@@ -181,8 +161,6 @@ void MainWindow::onFaster()
     m_pSimulatorWidget->setDuration(duration);
 
     updateFpsActions(duration);
-
-    updateStatus();
 }
 
 void MainWindow::onSlower()
@@ -191,8 +169,6 @@ void MainWindow::onSlower()
     m_pSimulatorWidget->setDuration(duration);
 
     updateFpsActions(duration);
-
-    updateStatus();
 }
 
 void MainWindow::onGravityChanged(QAction* checkedAction)
@@ -201,15 +177,30 @@ void MainWindow::onGravityChanged(QAction* checkedAction)
 
     if (m_pNewtonianGravityAction == checkedAction)
     {
-        m_pScene->setGravityType(GravityType::Newtonian);
+        m_pWithGravity->setGravityType(GravityType::Newtonian);
     }
     else if (m_pSimpleGravityAction == checkedAction)
     {
-        m_pScene->setGravityType(GravityType::Simple);
+        m_pWithGravity->setGravityType(GravityType::Simple);
     }
     else if (m_pNoneGravityAction == checkedAction)
     {
-        m_pScene->setGravityType(GravityType::None);
+        m_pWithGravity->setGravityType(GravityType::None);
+    }
+
+    switch (m_pWithGravity->gravityType())
+    {
+    case physics::Gravity::Type::Newtonian:
+        m_strGravityValue = tr("newtonian");
+        break;
+    case physics::Gravity::Type::Simple:
+        m_strGravityValue = tr("simple");
+        break;
+    case physics::Gravity::Type::None:
+        m_strGravityValue = tr("none");
+        break;
+    default:
+        m_strGravityValue = tr("unknown");
     }
 
     updateStatus();

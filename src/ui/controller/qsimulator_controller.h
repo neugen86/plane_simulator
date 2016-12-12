@@ -1,5 +1,5 @@
-#ifndef QPAINTCONTROLLER_H
-#define QPAINTCONTROLLER_H
+#ifndef QSimulatorController_H
+#define QSimulatorController_H
 
 #include <QMap>
 #include <QSize>
@@ -9,12 +9,13 @@
 #include <QSharedPointer>
 
 #include "interchange/subscription.h"
+#include "scene/interface/container.h"
 
 class QPainter;
 
-namespace controller
-{
-class QPaintController
+typedef QSharedPointer<scene::interface::Container> QContainerPtr;
+
+class QSimulatorController
         : public QObject
 {
     Q_OBJECT
@@ -38,6 +39,8 @@ class QPaintController
         types::value_t height() const { return m_height; }
     };
 
+    QPoint m_pos;
+
     QMutex m_lock;
 
     QPointF m_offset;
@@ -47,20 +50,29 @@ class QPaintController
     Rectangular m_rectProjection;
     const Rectangular m_rectSource;
 
+    const QContainerPtr m_pContainer;
+
     QMap<types::obj_id, QPhysObjectPtr> m_objects;
 
+    PhysObject* m_pSelectedObj;
+
 public:
-    QPaintController(types::value_t sourceWidth,
-                     types::value_t sourceHeight,
-                     QObject *parent = 0);
+    QSimulatorController(const QContainerPtr& pContainer,
+                         QObject *parent = 0);
+
+    void insertAt(const QPoint& point);
+    void removeSelected();
+
+    void setMousePos(const QPoint& pos) { m_pos = pos; }
 
     void setCanvasSize(const QSize& size);
-    void setData(const interchange::ObjectList& list);
+
+    void setData(const SubscriptionData& data);
+
     void paint(QPainter& painter);
 
-private:
+    void clear();
 
 };
-} // namespace controller
 
-#endif // QPAINTCONTROLLER_H
+#endif // QSimulatorController_H

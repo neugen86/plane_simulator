@@ -4,19 +4,22 @@
 #include <QWidget>
 
 #include "interchange/qsubscriber.h"
-#include "interchange/broadcaster.h"
-#include "scene/interface/container.h"
-#include "ui/controller/qpaintcontroller.h"
-
-typedef QSharedPointer<scene::interface::Container> QContainerPtr;
+#include "ui/controller/qsimulator_controller.h"
 
 class QSimulatorWidget
         : public QWidget
 {
     Q_OBJECT
 
+    QPoint m_pressedPos;
+
+    enum class Button
+    {
+        None, Left, Right
+    } m_pressedButton;
+
+    QSimulatorController m_controller;
     interchange::QSubscriber m_subscriber;
-    controller::QPaintController m_controller;
 
 public:
     QSimulatorWidget(const QContainerPtr& pContainer,
@@ -26,7 +29,12 @@ public:
     void setDuration(types::duration_t duration);
     types::duration_t duration() const;
 
+    void clear();
+
 protected:
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
     void resizeEvent(QResizeEvent* event);
     void paintEvent(QPaintEvent* event);
 

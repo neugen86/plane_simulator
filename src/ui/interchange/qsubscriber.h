@@ -16,7 +16,7 @@ class DataCallback
 {
 public:
     virtual ~DataCallback() {}
-    virtual void setData(const interchange::ObjectList& list) = 0;
+    virtual void setData(const SubscriptionData& data) = 0;
 };
 
 class QThreadWorker
@@ -47,7 +47,7 @@ class QSubscriber
 
     bool m_active;
 
-    interchange::ObjectList m_data;
+    SubscriptionData m_data;
 
     mutable concurrent::spinlock m_lock;
 
@@ -60,8 +60,8 @@ public:
     explicit QSubscriber(const QBroadcasterPtr& pBroadcaster);
     ~QSubscriber();
 
-    interchange::ObjectList data() const;
-    void setData(const interchange::ObjectList& data);
+    SubscriptionData data() const;
+    void setData(const SubscriptionData& data);
 
     void setDuration(types::duration_t duration);
     types::duration_t duration() const;

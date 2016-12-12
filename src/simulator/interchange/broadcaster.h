@@ -26,7 +26,7 @@ public:
     bool haveSubscriptions() const;
 
 protected:
-    void feed(const ObjectList& list);
+    void feed(const SubscriptionData& data, bool force);
 
 private:
     void clear();

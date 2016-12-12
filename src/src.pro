@@ -15,9 +15,9 @@ CONFIG += c++11
 SOURCES += \
     main.cpp\
     ui/mainwindow.cpp \
-    ui/controller/qpaintcontroller.cpp \
+    ui/controller/qsimulator_controller.cpp \
     ui/interchange/qsubscriber.cpp \
-    ui/widget/qsimulatorwidget.cpp \
+    ui/widget/qsimulator_widget.cpp \
     simulator/interchange/broadcaster.cpp \
     simulator/interchange/subscription.cpp \
     simulator/physics/algebra.cpp \
@@ -28,9 +28,9 @@ SOURCES += \
 
 HEADERS  += \
     ui/mainwindow.h \
-    ui/controller/qpaintcontroller.h \
+    ui/controller/qsimulator_controller.h \
     ui/interchange/qsubscriber.h \
-    ui/widget/qsimulatorwidget.h \
+    ui/widget/qsimulator_widget.h \
     simulator/concurrent/event.h \
     simulator/concurrent/lock.h \
     simulator/interchange/broadcaster.h \

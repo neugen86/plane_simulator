@@ -32,9 +32,16 @@ class MainWindow : public QMainWindow
     QAction* m_pSimpleGravityAction;
     QAction* m_pNoneGravityAction;
 
-    QSharedPointer<scene::Scene> m_pScene;
-
     QScopedPointer<QSimulatorWidget> m_pSimulatorWidget;
+
+    QSharedPointer<scene::interface::Playable> m_pPlayable;
+    QSharedPointer<scene::interface::WithGravity> m_pWithGravity;
+
+    double m_maxFrameRate;
+    double m_desiredFrameRate;
+
+    QString m_strSceneState;
+    QString m_strGravityValue;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -42,6 +49,7 @@ public:
 
 private:
     void initMenu();
+    void initScene();
     void updateStatus();
     void updateFpsActions(types::duration_t duration);
 

@@ -54,13 +54,13 @@ QSubscriber::~QSubscriber()
     deactivate();
 }
 
-interchange::ObjectList QSubscriber::data() const
+SubscriptionData QSubscriber::data() const
 {
     concurrent::guard guard(m_lock);
     return m_data;
 }
 
-void QSubscriber::setData(const interchange::ObjectList& data)
+void QSubscriber::setData(const SubscriptionData& data)
 {
     {
         concurrent::guard guard(m_lock);

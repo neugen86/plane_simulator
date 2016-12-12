@@ -63,6 +63,9 @@ public:
     interchange::ObjectList data() const;
     void setData(const interchange::ObjectList& data);
 
+    void setDuration(types::duration_t duration);
+    types::duration_t duration() const;
+
     bool activate();
     bool deactivate();
 

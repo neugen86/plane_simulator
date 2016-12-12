@@ -34,6 +34,7 @@ class Playable
 
     boost::shared_ptr<boost::thread> m_pThread;
 
+    boost::chrono::milliseconds m_realDuration;
     const boost::chrono::milliseconds m_duration;
 
 public:
@@ -41,6 +42,9 @@ public:
     virtual ~Playable();
 
     PlaybackState state() const { return m_state; }
+
+    types::duration_t duration() const { return m_duration.count(); }
+    types::duration_t realDuration() const { return m_realDuration.count(); }
 
     bool start();
     bool pause();

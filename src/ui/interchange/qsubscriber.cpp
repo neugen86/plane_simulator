@@ -70,6 +70,16 @@ void QSubscriber::setData(const interchange::ObjectList& data)
     emit updated();
 }
 
+void QSubscriber::setDuration(types::duration_t duration)
+{
+    m_pConsumer->setDuration(duration);
+}
+
+types::duration_t QSubscriber::duration() const
+{
+    return m_pConsumer->duration();
+}
+
 bool QSubscriber::activate()
 {
     if (m_active)

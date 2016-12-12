@@ -1,8 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <stdexcept>
 #include <widget/qsimulatorwidget.h>
+
+static const double MsPerSecond = 1000;
+static const unsigned int MaxFpsSteps = 6;
+static const types::duration_t FpsStep = 50;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,10 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    m_pSimulatorWidget.reset(new widget::QSimulatorWidget(m_pScene, m_pScene));
+    m_pSimulatorWidget.reset(new QSimulatorWidget(m_pScene, m_pScene));
     setCentralWidget(m_pSimulatorWidget.data());
 
     initMenu();
+
+    onFaster();
 
     onReset();
 }
@@ -36,6 +41,10 @@ void MainWindow::initMenu()
     m_pPauseAction = menu->addAction(tr("Pause"), this, SLOT(onPause()));
     m_pStopAction = menu->addAction(tr("Stop"), this, SLOT(onStop()));
 
+    menu = ui->menuBar->addMenu(tr("FPS"));
+    m_pFasterAction = menu->addAction(tr("Faster"), this, SLOT(onFaster()));
+    m_pSlowerAction = menu->addAction(tr("Slower"), this, SLOT(onSlower()));
+
     m_pGravityActions = new QActionGroup(this);
     connect(m_pGravityActions, SIGNAL(triggered(QAction*)),
             this, SLOT(onGravityChanged(QAction*)));
@@ -56,44 +65,58 @@ void MainWindow::initMenu()
 
 void MainWindow::updateStatus()
 {
-    static const QString UnknownValue(tr("UNKNOWN"));
-    static const QString StatusMessage(tr("Scene state: %1, gravity: %2."));
+    static const QString ErrorValue(tr("ERROR"));
+    static const QString StatusMessage(tr("Scene was %1, gravity is %2, " \
+                                          "fps = %3, maximum fps = %4"));
 
     QString sceneState;
     switch (m_pScene->state())
     {
     case PlaybackState::STARTED:
-        sceneState = tr("STARTED");
+        sceneState = tr("started");
         break;
     case PlaybackState::PAUSED:
-        sceneState = tr("PAUSED");
+        sceneState = tr("paused");
         break;
     case PlaybackState::STOPPED:
-        sceneState = tr("STOPPED");
+        sceneState = tr("stopped");
         break;
     default:
-        sceneState = UnknownValue;
+        sceneState = ErrorValue;
     }
 
     QString gravityValue;
     switch (m_pScene->gravityType())
     {
     case physics::Gravity::Type::Newtonian:
-        gravityValue = tr("NEWTONIAN");
+        gravityValue = tr("newtonian");
         break;
     case physics::Gravity::Type::Simple:
-        gravityValue = tr("SIMPLE");
+        gravityValue = tr("simple");
         break;
     case physics::Gravity::Type::None:
-        gravityValue = tr("NONE");
+        gravityValue = tr("none");
         break;
     default:
-        gravityValue = UnknownValue;
+        gravityValue = ErrorValue;
     }
 
-    ui->statusBar->showMessage(StatusMessage
-                               .arg(sceneState)
-                               .arg(gravityValue));
+    const types::duration_t subscriptionDuration = m_pSimulatorWidget->duration();
+
+    const double desiredFrameRate = MsPerSecond /
+            (subscriptionDuration > 0 ? subscriptionDuration : m_pScene->duration());
+
+    const double realFrameRate = MsPerSecond / m_pScene->realDuration();
+
+    ui->statusBar->showMessage(StatusMessage .arg(sceneState).arg(gravityValue)
+                               .arg(QString::number(desiredFrameRate))
+                               .arg(QString::number(realFrameRate)));
+}
+
+void MainWindow::updateFpsActions(types::duration_t duration)
+{
+    m_pFasterAction->setEnabled(duration > 0);
+    m_pSlowerAction->setEnabled(duration < FpsStep * MaxFpsSteps);
 }
 
 void MainWindow::onReset()
@@ -148,6 +171,26 @@ void MainWindow::onStop()
     m_pStopAction->setEnabled(false);
 
     m_pScene->stop();
+
+    updateStatus();
+}
+
+void MainWindow::onFaster()
+{
+    const types::duration_t duration = m_pSimulatorWidget->duration() - FpsStep;
+    m_pSimulatorWidget->setDuration(duration);
+
+    updateFpsActions(duration);
+
+    updateStatus();
+}
+
+void MainWindow::onSlower()
+{
+    const types::duration_t duration = m_pSimulatorWidget->duration() + FpsStep;
+    m_pSimulatorWidget->setDuration(duration);
+
+    updateFpsActions(duration);
 
     updateStatus();
 }

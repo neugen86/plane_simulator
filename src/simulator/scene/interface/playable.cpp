@@ -13,6 +13,7 @@ Playable::Playable(types::duration_t duration)
     , m_lock()
     , m_finishLock()
     , m_pThread(nullptr)
+    , m_realDuration(duration)
     , m_duration(duration)
 {
 }
@@ -141,9 +142,15 @@ void Playable::loop()
 
         if (m_duration > spent)
         {
+            m_realDuration = m_duration;
+
             const nanoseconds rest =
                     duration_cast<nanoseconds>(m_duration - spent);
             boost::this_thread::sleep_for(rest);
+        }
+        else
+        {
+            m_realDuration = spent;
         }
     }
 }

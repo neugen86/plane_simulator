@@ -3,8 +3,6 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-namespace widget
-{
 QSimulatorWidget::QSimulatorWidget(const QContainerPtr& pContainer,
                                    const QBroadcasterPtr& pBroadcaster,
                                    QWidget* parent)
@@ -14,6 +12,16 @@ QSimulatorWidget::QSimulatorWidget(const QContainerPtr& pContainer,
 {
     connect(&m_subscriber, SIGNAL(updated()), this, SLOT(onUpdate()));
     m_subscriber.activate();
+}
+
+void QSimulatorWidget::setDuration(types::duration_t duration)
+{
+    m_subscriber.setDuration(duration);
+}
+
+types::duration_t QSimulatorWidget::duration() const
+{
+    return m_subscriber.duration();
 }
 
 void QSimulatorWidget::resizeEvent(QResizeEvent* event)
@@ -32,4 +40,3 @@ void QSimulatorWidget::onUpdate()
     m_controller.setData(m_subscriber.data());
     update();
 }
-} // namespace widget

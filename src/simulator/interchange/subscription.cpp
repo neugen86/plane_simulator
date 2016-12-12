@@ -1,5 +1,7 @@
 #include "subscription.h"
 
+#include <cmath>
+
 namespace interchange
 {
 typedef boost::chrono::high_resolution_clock clock_t;
@@ -26,7 +28,7 @@ Subscription::~Subscription()
 void Subscription::setDuration(types::duration_t duration)
 {
     concurrent::guard guard(m_durationLock);
-    m_duration = boost::chrono::milliseconds(duration);
+    m_duration = boost::chrono::milliseconds(std::max(duration, 0l));
 }
 
 types::duration_t Subscription::duration() const

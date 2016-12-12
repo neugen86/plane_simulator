@@ -10,6 +10,7 @@ class MainWindow;
 }
 
 class QActionGroup;
+class QSimulatorWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -23,6 +24,9 @@ class MainWindow : public QMainWindow
     QAction* m_pPauseAction;
     QAction* m_pStopAction;
 
+    QAction* m_pFasterAction;
+    QAction* m_pSlowerAction;
+
     QActionGroup* m_pGravityActions;
     QAction* m_pNewtonianGravityAction;
     QAction* m_pSimpleGravityAction;
@@ -30,7 +34,7 @@ class MainWindow : public QMainWindow
 
     QSharedPointer<scene::Scene> m_pScene;
 
-    QScopedPointer<QWidget> m_pSimulatorWidget;
+    QScopedPointer<QSimulatorWidget> m_pSimulatorWidget;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -39,12 +43,15 @@ public:
 private:
     void initMenu();
     void updateStatus();
+    void updateFpsActions(types::duration_t duration);
 
 private slots:
     void onReset();
     void onStart();
     void onPause();
     void onStop();
+    void onFaster();
+    void onSlower();
     void onGravityChanged(QAction* checkedAction);
     void onAbout();
 

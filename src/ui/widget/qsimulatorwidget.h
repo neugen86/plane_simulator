@@ -10,8 +10,6 @@
 
 typedef QSharedPointer<scene::interface::Container> QContainerPtr;
 
-namespace widget
-{
 class QSimulatorWidget
         : public QWidget
 {
@@ -25,6 +23,9 @@ public:
                      const QBroadcasterPtr& pBroadcaster,
                      QWidget *parent = 0);
 
+    void setDuration(types::duration_t duration);
+    types::duration_t duration() const;
+
 protected:
     void resizeEvent(QResizeEvent* event);
     void paintEvent(QPaintEvent* event);
@@ -33,6 +34,5 @@ private slots:
     void onUpdate();
 
 };
-} // namespace widget
 
 #endif // QSIMULATORWIDGET_H

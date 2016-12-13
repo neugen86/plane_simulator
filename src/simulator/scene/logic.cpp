@@ -231,6 +231,19 @@ void Logic::update(physics::Particle& particle, bool withSnapshot)
         particle.move(vector.rx(), vector.ry());
     }
 
+    algebra::Point pos = particle.position();
+
+    if (pos.x() < 0)
+        pos.setX(m_sceneWidth);
+    if (pos.x() > m_sceneWidth)
+        pos.setX(0);
+    if (pos.y() < 0)
+        pos.setY(m_sceneHeight);
+    if (pos.y() > m_sceneHeight)
+        pos.setY(0);
+
+    particle.setPosition(pos);
+
     if (withSnapshot)
     {
         const ObjectPtr pObject(new physics::Object(particle));

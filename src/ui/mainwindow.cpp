@@ -1,11 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QMessageBox>
 #include <widget/qsimulator_widget.h>
 
+namespace values
+{
 static const double MsPerSecond = 1000;
-static const unsigned int MaxFpsSteps = 6;
 static const types::duration_t FpsStep = 75;
+static const types::duration_t MaxFpsStep = FpsStep * 6;
+} // namespace values
+
+static const QString AboutText =
+        MainWindow::tr("Motion balls simulation.\n" \
+                       "Evgeny Neustroev <neugen86@gmail.com>");
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -111,12 +119,12 @@ void MainWindow::updateStatus()
 void MainWindow::updateFpsActions(types::duration_t duration)
 {
     m_pFasterAction->setEnabled(duration > 0);
-    m_pSlowerAction->setEnabled(duration < FpsStep * MaxFpsSteps);
+    m_pSlowerAction->setEnabled(duration < values::MaxFpsStep);
 
     const types::duration_t max = m_pPlayable->realDuration();
 
-    m_desiredFrameRate = MsPerSecond / std::max(duration, max);
-    m_maxFrameRate = MsPerSecond / max;
+    m_desiredFrameRate = values::MsPerSecond / std::max(duration, max);
+    m_maxFrameRate = values::MsPerSecond / max;
 
     updateStatus();
 }
@@ -180,7 +188,7 @@ void MainWindow::onStop()
 
 void MainWindow::onFaster()
 {
-    const types::duration_t duration = m_pSimulatorWidget->duration() - FpsStep;
+    const types::duration_t duration = m_pSimulatorWidget->duration() - values::FpsStep;
     m_pSimulatorWidget->setDuration(duration);
 
     updateFpsActions(duration);
@@ -188,7 +196,7 @@ void MainWindow::onFaster()
 
 void MainWindow::onSlower()
 {
-    const types::duration_t duration = m_pSimulatorWidget->duration() + FpsStep;
+    const types::duration_t duration = m_pSimulatorWidget->duration() + values::FpsStep;
     m_pSimulatorWidget->setDuration(duration);
 
     updateFpsActions(duration);
@@ -255,5 +263,5 @@ void MainWindow::onMassChanged(QAction*)
 
 void MainWindow::onAbout()
 {
-
+    QMessageBox::about(this, tr("About"), AboutText);
 }

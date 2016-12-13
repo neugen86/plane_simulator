@@ -20,8 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     initScene();
 
     onFaster();
-
-    onReset();
+    onStart();
 }
 
 MainWindow::~MainWindow()
@@ -32,6 +31,7 @@ MainWindow::~MainWindow()
 void MainWindow::initMenu()
 {
     QMenu* menu(nullptr);
+    QActionGroup* group(nullptr);
 
     menu = ui->menuBar->addMenu(tr("Scene"));
     m_pResetAction = menu->addAction(tr("Reset"), this, SLOT(onReset()));
@@ -45,19 +45,34 @@ void MainWindow::initMenu()
     m_pFasterAction = menu->addAction(tr("Faster"), this, SLOT(onFaster()));
     m_pSlowerAction = menu->addAction(tr("Slower"), this, SLOT(onSlower()));
 
-    m_pGravityActions = new QActionGroup(this);
-    connect(m_pGravityActions, SIGNAL(triggered(QAction*)),
-            this, SLOT(onGravityChanged(QAction*)));
-
-    m_pNewtonianGravityAction = m_pGravityActions->addAction(tr("Newtonian"));
+    group = new QActionGroup(this);
+    connect(group, SIGNAL(triggered(QAction*)), this, SLOT(onGravityChanged(QAction*)));
+    m_pNewtonianGravityAction = group->addAction(tr("Newtonian"));
     m_pNewtonianGravityAction->setCheckable(true);
-    m_pSimpleGravityAction = m_pGravityActions->addAction(tr("Simple"));
+    m_pSimpleGravityAction = group->addAction(tr("Simple"));
     m_pSimpleGravityAction->setCheckable(true);
-    m_pNoneGravityAction = m_pGravityActions->addAction(tr("None"));
+    m_pNoneGravityAction = group->addAction(tr("None"));
     m_pNoneGravityAction->setCheckable(true);
-
     menu = ui->menuBar->addMenu(tr("Gravity"));
-    menu->addActions(m_pGravityActions->actions());
+    menu->addActions(group->actions());
+
+    group = new QActionGroup(this);
+    connect(group, SIGNAL(triggered(QAction*)), this, SLOT(onRadiusChanged(QAction*)));
+    m_pSmallRadiusAction = group->addAction(tr("Small"));
+    m_pSmallRadiusAction->setCheckable(true);
+    m_pBigRadiusAction = group->addAction(tr("Big"));
+    m_pBigRadiusAction->setCheckable(true);
+    menu = ui->menuBar->addMenu(tr("Radius"));
+    menu->addActions(group->actions());
+
+    group = new QActionGroup(this);
+    connect(group, SIGNAL(triggered(QAction*)), this, SLOT(onMassChanged(QAction*)));
+    m_pLightMassAction = group->addAction(tr("Light"));
+    m_pLightMassAction->setCheckable(true);
+    m_pHeavyMassAction = group->addAction(tr("Heavy"));
+    m_pHeavyMassAction->setCheckable(true);
+    menu = ui->menuBar->addMenu(tr("Mass"));
+    menu->addActions(group->actions());
 
     menu = ui->menuBar->addMenu(tr("Help"));
     menu->addAction(tr("About..."), this, SLOT(onAbout()));
@@ -66,12 +81,20 @@ void MainWindow::initMenu()
 void MainWindow::initScene()
 {
     QSharedPointer<scene::Scene> pScene(new scene::Scene);
+    m_pWithGravity = pScene;
+    m_pPlayable = pScene;
 
     m_pSimulatorWidget.reset(new QSimulatorWidget(pScene, pScene));
     setCentralWidget(m_pSimulatorWidget.data());
 
-    m_pWithGravity = pScene;
-    m_pPlayable = pScene;
+    m_pSimpleGravityAction->setChecked(true);
+    onGravityChanged(nullptr);
+
+    m_pSmallRadiusAction->setChecked(true);
+    onRadiusChanged(nullptr);
+
+    m_pLightMassAction->setChecked(true);
+    onMassChanged(nullptr);
 }
 
 void MainWindow::updateStatus()
@@ -171,19 +194,19 @@ void MainWindow::onSlower()
     updateFpsActions(duration);
 }
 
-void MainWindow::onGravityChanged(QAction* checkedAction)
+void MainWindow::onGravityChanged(QAction*)
 {
     typedef physics::Gravity::Type GravityType;
 
-    if (m_pNewtonianGravityAction == checkedAction)
+    if (m_pNewtonianGravityAction->isChecked())
     {
         m_pWithGravity->setGravityType(GravityType::Newtonian);
     }
-    else if (m_pSimpleGravityAction == checkedAction)
+    else if (m_pSimpleGravityAction->isChecked())
     {
         m_pWithGravity->setGravityType(GravityType::Simple);
     }
-    else if (m_pNoneGravityAction == checkedAction)
+    else if (m_pNoneGravityAction->isChecked())
     {
         m_pWithGravity->setGravityType(GravityType::None);
     }
@@ -204,6 +227,30 @@ void MainWindow::onGravityChanged(QAction* checkedAction)
     }
 
     updateStatus();
+}
+
+void MainWindow::onRadiusChanged(QAction*)
+{
+    if (m_pSmallRadiusAction->isChecked())
+    {
+        m_pSimulatorWidget->setBodyRadius(BodyRadius::Small);
+    }
+    else if (m_pBigRadiusAction->isChecked())
+    {
+        m_pSimulatorWidget->setBodyRadius(BodyRadius::Big);
+    }
+}
+
+void MainWindow::onMassChanged(QAction*)
+{
+    if (m_pLightMassAction->isChecked())
+    {
+        m_pSimulatorWidget->setBodyMass(BodyMass::Light);
+    }
+    else if (m_pHeavyMassAction->isChecked())
+    {
+        m_pSimulatorWidget->setBodyMass(BodyMass::Heavy);
+    }
 }
 
 void MainWindow::onAbout()

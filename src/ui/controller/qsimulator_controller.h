@@ -4,14 +4,16 @@
 #include <QMap>
 #include <QSize>
 #include <QMutex>
-#include <QObject>
-#include <QPointF>
+#include <QRectF>
 #include <QSharedPointer>
 
 #include "interchange/subscription.h"
 #include "scene/interface/controllable_container.h"
 
 class QPainter;
+
+enum class BodyMass { Light, Heavy };
+enum class BodyRadius { Small, Big };
 
 typedef QSharedPointer<scene::interface::ControllableContainer> QControllableContainerPtr;
 
@@ -23,44 +25,35 @@ class QSimulatorController
     typedef physics::Object PhysObject;
     typedef QSharedPointer<PhysObject> QPhysObjectPtr;
 
-    class Rectangular
-    {
-        types::value_t m_ratio;
-        types::value_t m_width;
-        types::value_t m_height;
-
-    public:
-        explicit Rectangular(types::value_t width = 0.,
-                             types::value_t height = 0.)
-            : m_ratio(width / height)
-            , m_width(width), m_height(height) {}
-        types::value_t ratio() const { return m_ratio; }
-        types::value_t width() const { return m_width; }
-        types::value_t height() const { return m_height; }
-    };
-
     QPoint m_pos;
 
     QMutex m_lock;
 
-    QPointF m_offset;
+    QRectF m_frameRect;
+
+    types::value_t m_bodyMass;
+    types::value_t m_bodyRadius;
 
     types::value_t m_lambda;
 
-    Rectangular m_rectProjection;
-    const Rectangular m_rectSource;
-
-    const QControllableContainerPtr m_pContainer;
+    const types::value_t m_ratio;
+    const types::value_t m_sourceWidth;
+    const types::value_t m_sourceHeight;
 
     QMap<types::obj_id, QPhysObjectPtr> m_objects;
+
+    const QControllableContainerPtr m_pContainer;
 
     PhysObject* m_pSelectedObj;
 
 public:
     QSimulatorController(const QControllableContainerPtr& pContainer,
+                         BodyMass mass, BodyRadius radius,
                          QObject *parent = 0);
 
     void paint(QPainter& painter);
+
+    void setupBody(BodyMass mass, BodyRadius radius);
 
     void setCanvasSize(const QSize& size);
     void setData(const SubscriptionData& data);

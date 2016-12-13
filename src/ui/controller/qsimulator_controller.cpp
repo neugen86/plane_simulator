@@ -6,30 +6,96 @@
 
 static const int FrameBorderWidth(1);
 
-QSimulatorController::QSimulatorController(const QControllableContainerPtr& pContainer, QObject* parent)
+namespace masses
+{
+    static const types::value_t Light(10.);
+    static const types::value_t Heavy(30.);
+    static const types::value_t Extra(50.);
+} // namespace masses
+
+namespace radiuses
+{
+    static const types::value_t Small(50.);
+    static const types::value_t Big(70.);
+    static const types::value_t Extra(90.);
+} // namespace radiuses
+
+namespace colors
+{
+    static const QColor Gray("#404040");
+    static const QColor Black("#000000");
+    static const QColor White("#F4F4F4");
+
+    static const QColor color0("#BDE3FF");
+    static const QColor color1("#5493E3");
+    static const QColor color2("#FFA273");
+    static const QColor color3("#FAD300");
+    static const QColor color4("#89D011");
+    static const QColor color5("#FF70D2");
+    static const QColor color6("#FF5050");
+    static const QColor color7("#00B19E");
+    static const QColor color8("#9554D2");
+} // namespace colors
+
+QColor bodyColor(types::value_t mass, types::value_t radius)
+{
+    if (less(mass, masses::Light))
+    {
+        if (less(radius, radiuses::Small)) return colors::color0;
+        if (less(radius, radiuses::Big)) return colors::color1;
+        return colors::color2;
+    }
+    if (less(mass, masses::Heavy))
+    {
+        if (less(radius, radiuses::Small)) return colors::color3;
+        if (less(radius, radiuses::Big)) return colors::color4;
+        return colors::color5;
+    }
+    if (less(radius, radiuses::Small)) return colors::color6;
+    if (less(radius, radiuses::Big)) return colors::color7;
+    return colors::color8;
+}
+
+void drawPath(QPainter& painter, const QPainterPath& path, qreal width)
+{
+    painter.save();
+    painter.setPen(QPen(colors::Gray, width, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setBrush(colors::White);
+    painter.drawPath(path);
+    painter.restore();
+}
+
+void drawCircle(QPainter& painter, const QPointF& pos, qreal radius, const QColor& color, qreal width)
+{
+    painter.save();
+    painter.setPen(QPen(colors::Gray, width, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+    painter.setBrush(color);
+    painter.drawEllipse(pos, radius, radius);
+    painter.restore();
+}
+
+QSimulatorController::QSimulatorController(const QControllableContainerPtr& pContainer,
+                                           BodyMass mass, BodyRadius radius,
+                                           QObject* parent)
     : QObject(parent)
     , m_lambda(physics::constants::PositiveUnit)
-    , m_rectSource(pContainer->width(), pContainer->height())
+    , m_ratio(pContainer->width() / pContainer->height())
+    , m_sourceWidth(pContainer->width())
+    , m_sourceHeight(pContainer->height())
     , m_pContainer(pContainer)
     , m_pSelectedObj(nullptr)
 {
+    setupBody(mass, radius);
 }
 
 void QSimulatorController::paint(QPainter& painter)
 {
     QPainterPath framePath;
-    framePath.addRect(m_offset.x(), m_offset.y(),
-                      m_rectProjection.width(), m_rectProjection.height());
+    framePath.addRect(m_frameRect);
 
-    painter.save();
+    const qreal lineWidth = m_lambda * 3;
 
-    painter.setPen(QPen(QColor(0, 0, 0), FrameBorderWidth,Qt::SolidLine,
-                        Qt::FlatCap, Qt::MiterJoin));
-    painter.setBrush(QColor(250, 250, 250));
-
-    painter.drawPath(framePath);
-
-    painter.restore();
+    drawPath(painter, framePath, FrameBorderWidth);
 
     {
         m_pSelectedObj = nullptr;
@@ -40,8 +106,8 @@ void QSimulatorController::paint(QPainter& painter)
         {
             const types::value_t radius = pObj->radius() * m_lambda;
 
-            const QPointF pos(pObj->position().x() * m_lambda + m_offset.x(),
-                              pObj->position().y() * m_lambda + m_offset.y());
+            const QPointF pos(m_frameRect.x() + pObj->position().x() * m_lambda,
+                              m_frameRect.y() + pObj->position().y() * m_lambda);
 
             const types::value_t d = distance(algebra::Point(pos.x(), pos.y()),
                                               algebra::Point(m_pos.x(), m_pos.y()));
@@ -49,43 +115,79 @@ void QSimulatorController::paint(QPainter& painter)
             const bool selected = !m_pSelectedObj && less(d, radius);
 
             if (selected)
+            {
                 m_pSelectedObj = pObj.data();
-
-            painter.save();
-
-            painter.setPen(QPen(QColor(0, 0, 0), 3 * m_lambda, Qt::SolidLine,
-                                Qt::FlatCap, Qt::MiterJoin));
-            painter.setBrush(selected ? QColor(200, 50, 50) : QColor(200, 200, 200));
-
-            painter.drawEllipse(pos, radius, radius);
-
-            painter.restore();
+            }
+            else
+            {
+                const QColor color = bodyColor(pObj->mass(), pObj->radius());
+                drawCircle(painter, pos, radius, color, lineWidth);
+            }
         }
+
+        if (m_pSelectedObj != 0)
+        {
+            const types::value_t radius = m_pSelectedObj->radius() * m_lambda;
+
+            const QPointF pos(m_frameRect.x() + m_pSelectedObj->position().x() * m_lambda,
+                              m_frameRect.y() + m_pSelectedObj->position().y() * m_lambda);
+
+            drawCircle(painter, pos, radius, colors::Gray, lineWidth);
+        }
+    }
+}
+
+void QSimulatorController::setupBody(BodyMass mass, BodyRadius radius)
+{
+    switch (mass)
+    {
+    case BodyMass::Light:
+        m_bodyMass = masses::Light;
+        break;
+    case BodyMass::Heavy:
+        m_bodyMass = masses::Heavy;
+        break;
+    default:
+        m_bodyMass = masses::Extra;
+    }
+
+    switch (radius)
+    {
+    case BodyRadius::Small:
+        m_bodyRadius = radiuses::Small;
+        break;
+    case BodyRadius::Big:
+        m_bodyRadius = radiuses::Big;
+        break;
+    default:
+        m_bodyRadius = radiuses::Extra;
     }
 }
 
 void QSimulatorController::setCanvasSize(const QSize& size)
 {
-    const types::value_t sourceRatio = m_rectSource.ratio();
-    const Rectangular rectCanvas(size.width(), size.height());
+    const types::value_t canvasWidth = size.width();
+    const types::value_t canvasHeight = size.height();
+    const types::value_t canvasRatio = canvasWidth / canvasHeight;
 
-    const bool sourceRatioLessThanUnit =
-            less(sourceRatio, physics::constants::PositiveUnit);
-    const bool canvasRatioLessSourceRatio =
-            less(rectCanvas.ratio(), sourceRatio);
+    const bool canvasRatioLessSourceRatio = less(canvasRatio, m_ratio);
+    const bool sourceRatioLessThanUnit = less(m_ratio, physics::constants::PositiveUnit);
 
     const bool byHeight = (sourceRatioLessThanUnit && canvasRatioLessSourceRatio) ||
             (!sourceRatioLessThanUnit && !canvasRatioLessSourceRatio);
 
     m_lambda = byHeight
-            ? rectCanvas.height() / m_rectSource.height()
-            : rectCanvas.width() / m_rectSource.width();
+            ? canvasHeight / m_sourceHeight
+            : canvasWidth / m_sourceWidth;
 
-    m_rectProjection = Rectangular(m_rectSource.width() * m_lambda - FrameBorderWidth - 1,
-                                   m_rectSource.height() * m_lambda - FrameBorderWidth - 1);
+    const types::value_t newWidth = m_sourceWidth * m_lambda - FrameBorderWidth - 1;
+    const types::value_t newHeight = m_sourceHeight * m_lambda - FrameBorderWidth - 1;
 
-    m_offset.setX((size.width() - m_rectProjection.width()) / 2);
-    m_offset.setY((size.height() - m_rectProjection.height()) / 2);
+    m_frameRect.setX((canvasWidth - newWidth) / 2);
+    m_frameRect.setY((canvasHeight - newHeight) / 2);
+
+    m_frameRect.setWidth(newWidth);
+    m_frameRect.setHeight(newHeight);
 }
 
 void QSimulatorController::setData(const SubscriptionData& data)
@@ -115,12 +217,15 @@ void QSimulatorController::setData(const SubscriptionData& data)
 
 void QSimulatorController::setMousePos(const QPoint& point, bool fixed)
 {
+    if (!m_frameRect.contains(point.x(), point.y()))
+        return;
+
     m_pos = point;
 
     if (m_pSelectedObj && fixed)
     {
-        const algebra::Point pos((point.x() - m_offset.x()) / m_lambda,
-                                 (point.y() - m_offset.y()) / m_lambda);
+        const algebra::Point pos((point.x() - m_frameRect.x()) / m_lambda,
+                                 (point.y() - m_frameRect.y()) / m_lambda);
 
         m_pContainer->grabObject(m_pSelectedObj->id(), pos);
     }
@@ -128,9 +233,12 @@ void QSimulatorController::setMousePos(const QPoint& point, bool fixed)
 
 void QSimulatorController::insertAt(const QPoint& point)
 {
-    const algebra::Point pos((point.x() - m_offset.x()) / m_lambda,
-                             (point.y() - m_offset.y()) / m_lambda);
-    m_pContainer->insertObject(PhysObject(pos, 50.));
+    if (!m_frameRect.contains(point.x(), point.y()))
+        return;
+
+    const algebra::Point pos((point.x() - m_frameRect.x()) / m_lambda,
+                             (point.y() - m_frameRect.y()) / m_lambda);
+    m_pContainer->insertObject(PhysObject(pos, m_bodyRadius, m_bodyMass));
 }
 
 void QSimulatorController::releaseSelected()

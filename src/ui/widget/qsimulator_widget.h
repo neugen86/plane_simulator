@@ -11,6 +11,9 @@ class QSimulatorWidget
 {
     Q_OBJECT
 
+    BodyMass m_mass;
+    BodyRadius m_radius;
+
     bool m_leftButtonPressed;
 
     QSimulatorController m_controller;
@@ -23,6 +26,12 @@ public:
 
     void setDuration(types::duration_t duration);
     types::duration_t duration() const;
+
+    void setBodyMass(BodyMass mass);
+    BodyMass bodyMass() const;
+
+    void setBodyRadius(BodyRadius radius);
+    BodyRadius bodyRadius() const;
 
     void clear();
 

@@ -27,7 +27,12 @@ class MainWindow : public QMainWindow
     QAction* m_pFasterAction;
     QAction* m_pSlowerAction;
 
-    QActionGroup* m_pGravityActions;
+    QAction* m_pLightMassAction;
+    QAction* m_pHeavyMassAction;
+
+    QAction* m_pSmallRadiusAction;
+    QAction* m_pBigRadiusAction;
+
     QAction* m_pNewtonianGravityAction;
     QAction* m_pSimpleGravityAction;
     QAction* m_pNoneGravityAction;
@@ -61,6 +66,8 @@ private slots:
     void onFaster();
     void onSlower();
     void onGravityChanged(QAction* checkedAction);
+    void onRadiusChanged(QAction* checkedAction);
+    void onMassChanged(QAction* checkedAction);
     void onAbout();
 
 };

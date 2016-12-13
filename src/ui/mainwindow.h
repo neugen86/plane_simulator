@@ -56,7 +56,7 @@ private:
     void initMenu();
     void initScene();
     void updateStatus();
-    void updateFpsActions(types::duration_t duration);
+    void updateFps(types::duration_t duration);
 
 private slots:
     void onReset();

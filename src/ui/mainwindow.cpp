@@ -27,8 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     initScene();
 
-    onFaster();
-    onStart();
+    onReset();
 }
 
 MainWindow::~MainWindow()
@@ -94,15 +93,6 @@ void MainWindow::initScene()
 
     m_pSimulatorWidget.reset(new QSimulatorWidget(pScene, pScene));
     setCentralWidget(m_pSimulatorWidget.data());
-
-    m_pSimpleGravityAction->setChecked(true);
-    onGravityChanged(nullptr);
-
-    m_pSmallRadiusAction->setChecked(true);
-    onRadiusChanged(nullptr);
-
-    m_pLightMassAction->setChecked(true);
-    onMassChanged(nullptr);
 }
 
 void MainWindow::updateStatus()
@@ -116,8 +106,10 @@ void MainWindow::updateStatus()
                                .arg(QString::number(m_maxFrameRate)));
 }
 
-void MainWindow::updateFpsActions(types::duration_t duration)
+void MainWindow::updateFps(types::duration_t duration)
 {
+    m_pSimulatorWidget->setDuration(duration);
+
     m_pFasterAction->setEnabled(duration > 0);
     m_pSlowerAction->setEnabled(duration < values::MaxFpsStep);
 
@@ -135,17 +127,16 @@ void MainWindow::onReset()
 
     m_pSimulatorWidget->clear();
 
-    switch (m_pWithGravity->gravityType())
-    {
-    case physics::Gravity::Type::Newtonian:
-        m_pNewtonianGravityAction->setChecked(true);
-        break;
-    case physics::Gravity::Type::Simple:
-        m_pSimpleGravityAction->setChecked(true);
-        break;
-    default:
-        m_pNoneGravityAction->setChecked(true);
-    }
+    m_pSimpleGravityAction->setChecked(true);
+    onGravityChanged(nullptr);
+
+    m_pSmallRadiusAction->setChecked(true);
+    onRadiusChanged(nullptr);
+
+    m_pLightMassAction->setChecked(true);
+    onMassChanged(nullptr);
+
+    updateFps(0);
 
     onStart();
 }
@@ -188,18 +179,12 @@ void MainWindow::onStop()
 
 void MainWindow::onFaster()
 {
-    const types::duration_t duration = m_pSimulatorWidget->duration() - values::FpsStep;
-    m_pSimulatorWidget->setDuration(duration);
-
-    updateFpsActions(duration);
+    updateFps(m_pSimulatorWidget->duration() - values::FpsStep);
 }
 
 void MainWindow::onSlower()
 {
-    const types::duration_t duration = m_pSimulatorWidget->duration() + values::FpsStep;
-    m_pSimulatorWidget->setDuration(duration);
-
-    updateFpsActions(duration);
+    updateFps(m_pSimulatorWidget->duration() + values::FpsStep);
 }
 
 void MainWindow::onGravityChanged(QAction*)

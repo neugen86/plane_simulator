@@ -74,6 +74,8 @@ bool Playable::pause()
     m_state = PlaybackState::PAUSED;
     m_paused = true;
 
+    m_realDuration = m_duration;
+
     onPause();
 
     return true;
@@ -100,6 +102,8 @@ bool Playable::stop(bool fromDestructor)
     m_state = PlaybackState::STOPPED;
     m_stopped = true;
     m_paused = false;
+
+    m_realDuration = m_duration;
 
     if (!fromDestructor)
         onStop();

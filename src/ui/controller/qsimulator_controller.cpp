@@ -98,6 +98,9 @@ void QSimulatorController::paint(QPainter& painter)
     drawPath(painter, framePath, FrameBorderWidth);
 
     {
+        bool selectedIsInFocus = false;
+        PhysObject* pSelectedObj = m_pSelectedObj;
+
         m_pSelectedObj = nullptr;
 
         QMutexLocker guard(&m_lock);
@@ -112,18 +115,20 @@ void QSimulatorController::paint(QPainter& painter)
             const types::value_t d = distance(algebra::Point(pos.x(), pos.y()),
                                               algebra::Point(m_pos.x(), m_pos.y()));
 
-            const bool selected = !m_pSelectedObj && less(d, radius);
+            const bool currentIsInFocus = less(d, radius);
 
-            if (selected)
-            {
+            if (pObj.data() == pSelectedObj && currentIsInFocus)
+                selectedIsInFocus = true;
+
+            if (!selectedIsInFocus && !m_pSelectedObj && currentIsInFocus)
                 m_pSelectedObj = pObj.data();
-            }
-            else
-            {
-                const QColor color = bodyColor(pObj->mass(), pObj->radius());
-                drawCircle(painter, pos, radius, color, lineWidth);
-            }
+
+            const QColor color = bodyColor(pObj->mass(), pObj->radius());
+            drawCircle(painter, pos, radius, color, lineWidth);
         }
+
+        if (selectedIsInFocus)
+            m_pSelectedObj = pSelectedObj;
 
         if (m_pSelectedObj != 0)
         {
